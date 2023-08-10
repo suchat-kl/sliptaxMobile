@@ -5,12 +5,12 @@ MERGED from C:\flutterPrj\sp_mobile\android\app\src\main\AndroidManifest.xml:8:5
 MERGED from C:\flutterPrj\sp_mobile\android\app\src\main\AndroidManifest.xml:8:5-26:19
 MERGED from [:image_picker_android] C:\flutterPrj\sp_mobile\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:9:5-19:19
 MERGED from [:image_picker_android] C:\flutterPrj\sp_mobile\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:9:5-19:19
-MERGED from [:url_launcher_android] C:\flutterPrj\sp_mobile\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:9:5-14:19
-MERGED from [:url_launcher_android] C:\flutterPrj\sp_mobile\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:9:5-14:19
 MERGED from [:modern_form_esys_flutter_share] C:\flutterPrj\sp_mobile\build\modern_form_esys_flutter_share\intermediates\merged_manifest\debug\AndroidManifest.xml:9:5-19:19
 MERGED from [:modern_form_esys_flutter_share] C:\flutterPrj\sp_mobile\build\modern_form_esys_flutter_share\intermediates\merged_manifest\debug\AndroidManifest.xml:9:5-19:19
 MERGED from [:flutter_local_notifications] C:\flutterPrj\sp_mobile\build\flutter_local_notifications\intermediates\merged_manifest\debug\AndroidManifest.xml:15:5-29:19
 MERGED from [:flutter_local_notifications] C:\flutterPrj\sp_mobile\build\flutter_local_notifications\intermediates\merged_manifest\debug\AndroidManifest.xml:15:5-29:19
+MERGED from [:url_launcher_android] C:\flutterPrj\sp_mobile\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:9:5-14:19
+MERGED from [:url_launcher_android] C:\flutterPrj\sp_mobile\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:9:5-14:19
 MERGED from [:open_file_plus] C:\flutterPrj\sp_mobile\build\open_file_plus\intermediates\merged_manifest\debug\AndroidManifest.xml:14:5-25:19
 MERGED from [:open_file_plus] C:\flutterPrj\sp_mobile\build\open_file_plus\intermediates\merged_manifest\debug\AndroidManifest.xml:14:5-25:19
 MERGED from [androidx.window:window:1.0.0-beta04] C:\Users\Administrator\.gradle\caches\transforms-3\f7efc37c96c8836093fd781c499cda33\transformed\jetified-window-1.0.0-beta04\AndroidManifest.xml:24:5-31:19
@@ -42,17 +42,19 @@ INJECTED from C:\flutterPrj\sp_mobile\android\app\src\main\AndroidManifest.xml:1
 INJECTED from C:\flutterPrj\sp_mobile\android\app\src\main\AndroidManifest.xml:1:1-27:12
 INJECTED from C:\flutterPrj\sp_mobile\android\app\src\main\AndroidManifest.xml:1:1-27:12
 MERGED from C:\flutterPrj\sp_mobile\android\app\src\main\AndroidManifest.xml:1:1-27:12
+MERGED from [:flutter_udid] C:\flutterPrj\sp_mobile\build\flutter_udid\intermediates\merged_manifest\debug\AndroidManifest.xml:2:1-9:12
 MERGED from [:flutter_pdfview] C:\flutterPrj\sp_mobile\build\flutter_pdfview\intermediates\merged_manifest\debug\AndroidManifest.xml:2:1-9:12
 MERGED from [:image_picker_android] C:\flutterPrj\sp_mobile\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:2:1-21:12
 MERGED from [:local_auth_android] C:\flutterPrj\sp_mobile\build\local_auth_android\intermediates\merged_manifest\debug\AndroidManifest.xml:2:1-11:12
 MERGED from [:flutter_plugin_android_lifecycle] C:\flutterPrj\sp_mobile\build\flutter_plugin_android_lifecycle\intermediates\merged_manifest\debug\AndroidManifest.xml:2:1-9:12
 MERGED from [:sqflite] C:\flutterPrj\sp_mobile\build\sqflite\intermediates\merged_manifest\debug\AndroidManifest.xml:2:1-9:12
-MERGED from [:url_launcher_android] C:\flutterPrj\sp_mobile\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:2:1-16:12
 MERGED from [:modern_form_esys_flutter_share] C:\flutterPrj\sp_mobile\build\modern_form_esys_flutter_share\intermediates\merged_manifest\debug\AndroidManifest.xml:2:1-21:12
 MERGED from [:flutter_local_notifications] C:\flutterPrj\sp_mobile\build\flutter_local_notifications\intermediates\merged_manifest\debug\AndroidManifest.xml:2:1-31:12
+MERGED from [:url_launcher_android] C:\flutterPrj\sp_mobile\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:2:1-16:12
 MERGED from [:path_provider_android] C:\flutterPrj\sp_mobile\build\path_provider_android\intermediates\merged_manifest\debug\AndroidManifest.xml:2:1-9:12
 MERGED from [:open_file_plus] C:\flutterPrj\sp_mobile\build\open_file_plus\intermediates\merged_manifest\debug\AndroidManifest.xml:2:1-27:12
 MERGED from [:permission_handler_android] C:\flutterPrj\sp_mobile\build\permission_handler_android\intermediates\merged_manifest\debug\AndroidManifest.xml:2:1-9:12
+MERGED from [:fluttertoast] C:\flutterPrj\sp_mobile\build\fluttertoast\intermediates\merged_manifest\debug\AndroidManifest.xml:2:1-9:12
 MERGED from [:device_info_plus] C:\flutterPrj\sp_mobile\build\device_info_plus\intermediates\merged_manifest\debug\AndroidManifest.xml:2:1-9:12
 MERGED from [:advance_pdf_viewer] C:\flutterPrj\sp_mobile\build\advance_pdf_viewer\intermediates\merged_manifest\debug\AndroidManifest.xml:2:1-9:12
 MERGED from [androidx.biometric:biometric:1.1.0] C:\Users\Administrator\.gradle\caches\transforms-3\f15b90d2334e873f2f1e7b188d227ebc\transformed\biometric-1.1.0\AndroidManifest.xml:17:1-29:12
@@ -152,6 +154,8 @@ uses-sdk
 INJECTED from C:\flutterPrj\sp_mobile\android\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from C:\flutterPrj\sp_mobile\android\app\src\main\AndroidManifest.xml
 INJECTED from C:\flutterPrj\sp_mobile\android\app\src\main\AndroidManifest.xml
+MERGED from [:flutter_udid] C:\flutterPrj\sp_mobile\build\flutter_udid\intermediates\merged_manifest\debug\AndroidManifest.xml:5:5-7:41
+MERGED from [:flutter_udid] C:\flutterPrj\sp_mobile\build\flutter_udid\intermediates\merged_manifest\debug\AndroidManifest.xml:5:5-7:41
 MERGED from [:flutter_pdfview] C:\flutterPrj\sp_mobile\build\flutter_pdfview\intermediates\merged_manifest\debug\AndroidManifest.xml:5:5-7:41
 MERGED from [:flutter_pdfview] C:\flutterPrj\sp_mobile\build\flutter_pdfview\intermediates\merged_manifest\debug\AndroidManifest.xml:5:5-7:41
 MERGED from [:image_picker_android] C:\flutterPrj\sp_mobile\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:5:5-7:41
@@ -162,18 +166,20 @@ MERGED from [:flutter_plugin_android_lifecycle] C:\flutterPrj\sp_mobile\build\fl
 MERGED from [:flutter_plugin_android_lifecycle] C:\flutterPrj\sp_mobile\build\flutter_plugin_android_lifecycle\intermediates\merged_manifest\debug\AndroidManifest.xml:5:5-7:41
 MERGED from [:sqflite] C:\flutterPrj\sp_mobile\build\sqflite\intermediates\merged_manifest\debug\AndroidManifest.xml:5:5-7:41
 MERGED from [:sqflite] C:\flutterPrj\sp_mobile\build\sqflite\intermediates\merged_manifest\debug\AndroidManifest.xml:5:5-7:41
-MERGED from [:url_launcher_android] C:\flutterPrj\sp_mobile\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:5:5-7:41
-MERGED from [:url_launcher_android] C:\flutterPrj\sp_mobile\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:5:5-7:41
 MERGED from [:modern_form_esys_flutter_share] C:\flutterPrj\sp_mobile\build\modern_form_esys_flutter_share\intermediates\merged_manifest\debug\AndroidManifest.xml:5:5-7:41
 MERGED from [:modern_form_esys_flutter_share] C:\flutterPrj\sp_mobile\build\modern_form_esys_flutter_share\intermediates\merged_manifest\debug\AndroidManifest.xml:5:5-7:41
 MERGED from [:flutter_local_notifications] C:\flutterPrj\sp_mobile\build\flutter_local_notifications\intermediates\merged_manifest\debug\AndroidManifest.xml:5:5-7:41
 MERGED from [:flutter_local_notifications] C:\flutterPrj\sp_mobile\build\flutter_local_notifications\intermediates\merged_manifest\debug\AndroidManifest.xml:5:5-7:41
+MERGED from [:url_launcher_android] C:\flutterPrj\sp_mobile\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:5:5-7:41
+MERGED from [:url_launcher_android] C:\flutterPrj\sp_mobile\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:5:5-7:41
 MERGED from [:path_provider_android] C:\flutterPrj\sp_mobile\build\path_provider_android\intermediates\merged_manifest\debug\AndroidManifest.xml:5:5-7:41
 MERGED from [:path_provider_android] C:\flutterPrj\sp_mobile\build\path_provider_android\intermediates\merged_manifest\debug\AndroidManifest.xml:5:5-7:41
 MERGED from [:open_file_plus] C:\flutterPrj\sp_mobile\build\open_file_plus\intermediates\merged_manifest\debug\AndroidManifest.xml:6:5-8:41
 MERGED from [:open_file_plus] C:\flutterPrj\sp_mobile\build\open_file_plus\intermediates\merged_manifest\debug\AndroidManifest.xml:6:5-8:41
 MERGED from [:permission_handler_android] C:\flutterPrj\sp_mobile\build\permission_handler_android\intermediates\merged_manifest\debug\AndroidManifest.xml:5:5-7:41
 MERGED from [:permission_handler_android] C:\flutterPrj\sp_mobile\build\permission_handler_android\intermediates\merged_manifest\debug\AndroidManifest.xml:5:5-7:41
+MERGED from [:fluttertoast] C:\flutterPrj\sp_mobile\build\fluttertoast\intermediates\merged_manifest\debug\AndroidManifest.xml:5:5-7:41
+MERGED from [:fluttertoast] C:\flutterPrj\sp_mobile\build\fluttertoast\intermediates\merged_manifest\debug\AndroidManifest.xml:5:5-7:41
 MERGED from [:device_info_plus] C:\flutterPrj\sp_mobile\build\device_info_plus\intermediates\merged_manifest\debug\AndroidManifest.xml:5:5-7:41
 MERGED from [:device_info_plus] C:\flutterPrj\sp_mobile\build\device_info_plus\intermediates\merged_manifest\debug\AndroidManifest.xml:5:5-7:41
 MERGED from [:advance_pdf_viewer] C:\flutterPrj\sp_mobile\build\advance_pdf_viewer\intermediates\merged_manifest\debug\AndroidManifest.xml:5:5-7:41
@@ -279,15 +285,15 @@ ADDED from C:\flutterPrj\sp_mobile\android\app\src\main\AndroidManifest.xml:9:9-
 	android:launchMode
 		ADDED from C:\flutterPrj\sp_mobile\android\app\src\main\AndroidManifest.xml:9:72-102
 	android:hardwareAccelerated
-		ADDED from C:\flutterPrj\sp_mobile\android\app\src\main\AndroidManifest.xml:9:289-323
+		ADDED from C:\flutterPrj\sp_mobile\android\app\src\main\AndroidManifest.xml:9:302-336
 	android:windowSoftInputMode
-		ADDED from C:\flutterPrj\sp_mobile\android\app\src\main\AndroidManifest.xml:9:324-366
+		ADDED from C:\flutterPrj\sp_mobile\android\app\src\main\AndroidManifest.xml:9:337-379
 	android:exported
 		ADDED from C:\flutterPrj\sp_mobile\android\app\src\main\AndroidManifest.xml:9:48-71
 	android:configChanges
-		ADDED from C:\flutterPrj\sp_mobile\android\app\src\main\AndroidManifest.xml:9:138-288
+		ADDED from C:\flutterPrj\sp_mobile\android\app\src\main\AndroidManifest.xml:9:151-301
 	android:theme
-		ADDED from C:\flutterPrj\sp_mobile\android\app\src\main\AndroidManifest.xml:9:103-137
+		ADDED from C:\flutterPrj\sp_mobile\android\app\src\main\AndroidManifest.xml:9:103-150
 	android:name
 		ADDED from C:\flutterPrj\sp_mobile\android\app\src\main\AndroidManifest.xml:9:19-47
 meta-data#io.flutter.embedding.android.NormalTheme
@@ -328,14 +334,6 @@ ADDED from [:image_picker_android] C:\flutterPrj\sp_mobile\build\image_picker_an
 		ADDED from [:image_picker_android] C:\flutterPrj\sp_mobile\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:17:17-72
 	android:name
 		ADDED from [:image_picker_android] C:\flutterPrj\sp_mobile\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:16:17-67
-activity#io.flutter.plugins.urllauncher.WebViewActivity
-ADDED from [:url_launcher_android] C:\flutterPrj\sp_mobile\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:10:9-13:74
-	android:exported
-		ADDED from [:url_launcher_android] C:\flutterPrj\sp_mobile\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:12:13-37
-	android:theme
-		ADDED from [:url_launcher_android] C:\flutterPrj\sp_mobile\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:13:13-71
-	android:name
-		ADDED from [:url_launcher_android] C:\flutterPrj\sp_mobile\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:11:13-74
 provider#de.esys.esysfluttershare.EsysFlutterShareFileProvider
 ADDED from [:modern_form_esys_flutter_share] C:\flutterPrj\sp_mobile\build\modern_form_esys_flutter_share\intermediates\merged_manifest\debug\AndroidManifest.xml:10:9-18:20
 	android:grantUriPermissions
@@ -396,6 +394,14 @@ action#com.htc.intent.action.QUICKBOOT_POWERON
 ADDED from [:flutter_local_notifications] C:\flutterPrj\sp_mobile\build\flutter_local_notifications\intermediates\merged_manifest\debug\AndroidManifest.xml:26:17-82
 	android:name
 		ADDED from [:flutter_local_notifications] C:\flutterPrj\sp_mobile\build\flutter_local_notifications\intermediates\merged_manifest\debug\AndroidManifest.xml:26:25-79
+activity#io.flutter.plugins.urllauncher.WebViewActivity
+ADDED from [:url_launcher_android] C:\flutterPrj\sp_mobile\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:10:9-13:74
+	android:exported
+		ADDED from [:url_launcher_android] C:\flutterPrj\sp_mobile\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:12:13-37
+	android:theme
+		ADDED from [:url_launcher_android] C:\flutterPrj\sp_mobile\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:13:13-71
+	android:name
+		ADDED from [:url_launcher_android] C:\flutterPrj\sp_mobile\build\url_launcher_android\intermediates\merged_manifest\debug\AndroidManifest.xml:11:13-74
 provider#com.joutvhu.openfile.FileProvider
 ADDED from [:open_file_plus] C:\flutterPrj\sp_mobile\build\open_file_plus\intermediates\merged_manifest\debug\AndroidManifest.xml:15:9-24:20
 	android:grantUriPermissions

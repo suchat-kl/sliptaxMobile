@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
-// import 'package:device_info_plus/device_info_plus.dart';
+
+import 'package:flutter_udid/flutter_udid.dart';
 // import 'package:platform_device_id/platform_device_id.dart';
 import 'package:responsive_ui/responsive_ui.dart';
 // import 'package:universal_html/html.dart' as html;
@@ -69,11 +70,11 @@ enum SelectMenu {
   // mnuCancelFingerprint,
 }
 
-enum _SupportState {
-  unknown,
-  supported,
-  unsupported,
-}
+// enum _SupportState {
+//   unknown,
+//   supported,
+//   unsupported,
+// }
 
 class MenuState extends State<Menu> {
   final formKey = GlobalKey<FormState>();
@@ -84,7 +85,7 @@ class MenuState extends State<Menu> {
   // final formKeyRegister = GlobalKey<FormState>();
   // final formKeyChangePassword = GlobalKey<FormState>();
   // final formKeyResetPassword = GlobalKey<FormState>();
-
+  // GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   final TextEditingController slipYearCtrl = TextEditingController();
   final TextEditingController taxYearCtrl = TextEditingController();
   final TextEditingController idcardCtrl = TextEditingController();
@@ -94,6 +95,7 @@ class MenuState extends State<Menu> {
   String processUsr = "register";
   // int fontSize=18;
   int? selectUsr = 1;
+  int? selectLogin = 2;
   List<String> processUsrStr = ["register", "changepwd", "resetpwd"];
   // String _message = "";
   // String _path = "";
@@ -101,6 +103,7 @@ class MenuState extends State<Menu> {
   // String _mimeType = "";
   // File? _imageFile;
   // int _progress = 0;
+  String loginBy = "";
   String urlImgLogin = "";
   bool runOneTime = false;
   int itemIndex = 3;
@@ -139,12 +142,15 @@ class MenuState extends State<Menu> {
   String appTitle = "";
 
   final LocalAuthentication auth = LocalAuthentication();
-  _SupportState _supportState = _SupportState.unknown;
+  // _SupportState _supportState = _SupportState.unknown;
   bool? _canCheckBiometrics;
   List<BiometricType>? _availableBiometrics;
   String _authorized = 'Not Authorized';
-   bool _isAuthenticating = false;
+  bool _isAuthenticating = false;
   bool readyFingerPrint = false;
+  String foundUuid = "f", foundIdcard = "";
+  // bool chkUserPwd = true;
+
   // static const iosStrings = const IOSAuthMessages(
   //     cancelButton: 'cancel',
   //     goToSettingsButton: 'settings',
@@ -190,6 +196,7 @@ class MenuState extends State<Menu> {
       _availableBiometrics = availableBiometrics;
     });
   }
+
 /*
   Future<void> _authenticate() async {
     bool authenticated = false;
@@ -231,7 +238,7 @@ class MenuState extends State<Menu> {
         _authorized = 'Authenticating';
       });
       authenticated = await auth.authenticate(
-        localizedReason: 'สแกนลายนิ้วมือเพื่อเข้าระบบ',
+        localizedReason: 'สแกนลายนิ้วมือเพื่อเข้าระบบสลิปใบรับรองภาษี',
         options: const AuthenticationOptions(
           stickyAuth: true,
           biometricOnly: true,
@@ -262,10 +269,46 @@ class MenuState extends State<Menu> {
   }
 
   Future<bool> fingerPrintReady() async {
-    //  if (_authorized == 'Authorized') return;
+    if (await auth.canCheckBiometrics && await auth.isDeviceSupported()) {
+      try {
+        // if(await auth.authenticate(
+        //    // authenticate configuration
+        //    )){
+        //        // authenticated
+        // }
+        return true;
+      } on PlatformException catch (exception) {
+        // catch the exception
+        print(exception);
+      }
+    }
+    return false;
+  }
+
+  Future<bool> fingerPrintReadyOld() async {
+    String msg = "";
+    if (_authorized == 'Authorized') return true;
+    // print("_authorized=" + _authorized);
+    msg = "_authorized=" + _authorized;
+    MsgShow().showMsg(msg, TypeMsg.Warning, context);
+    // msg = "_supportState=" + _supportState.toString();
+    // MsgShow().showMsg(msg, TypeMsg.Warning, context);
+    // if (_supportState != _SupportState.supported) {
+    //   return false;
+    // }
+    if (!await auth.isDeviceSupported())
+      // return true;
+      //else
+      return false;
     await _checkBiometrics();
+    // print("_canCheckBiometrics=" + _canCheckBiometrics.toString());
+    msg = "_canCheckBiometrics=" + _canCheckBiometrics.toString();
+    MsgShow().showMsg(msg, TypeMsg.Warning, context);
     if (!_canCheckBiometrics!) return false;
     await _getAvailableBiometrics();
+    // print("_availableBiometrics=" + _availableBiometrics.toString());
+    msg = "_availableBiometrics=" + _availableBiometrics.toString();
+    MsgShow().showMsg(msg, TypeMsg.Warning, context);
 //  if (_availableBiometrics!.contains(BiometricType.face)) {
 //         // Face ID.
 //       } else
@@ -274,35 +317,34 @@ class MenuState extends State<Menu> {
       // Touch ID.
       return false;
     }
+    // print("_supportState=" + _supportState.toString());
 
-    if (_supportState != _SupportState.supported) {
-      return false;
-    }
     return true;
   }
 
- /* Future<void> _cancelAuthentication() async {
+/*
+  Future<void> _cancelAuthentication() async {
     await auth.stopAuthentication();
     setState(() => _isAuthenticating = false);
   }
 */
   Future<void> popupFingerPrint() async {
     if (_authorized == 'Authorized') return;
-    await _checkBiometrics();
-    if (!_canCheckBiometrics!) return;
-    await _getAvailableBiometrics();
+    // await _checkBiometrics();
+    // if (!_canCheckBiometrics!) return;
+    // await _getAvailableBiometrics();
 //  if (_availableBiometrics!.contains(BiometricType.face)) {
 //         // Face ID.
 //       } else
 
-    if (!_availableBiometrics!.contains(BiometricType.fingerprint)) {
-      // Touch ID.
-      return;
-    }
+    // if (!_availableBiometrics!.contains(BiometricType.fingerprint)) {
+    //   // Touch ID.
+    //   return;
+    // }
 
-    if (_supportState == _SupportState.supported) {
-      await _authenticateWithBiometrics();
-    }
+    // if (_supportState == _SupportState.supported) {
+    await _authenticateWithBiometrics();
+    // }
   }
 
   @override
@@ -314,8 +356,8 @@ class MenuState extends State<Menu> {
   Widget buildMsg(LoginDetail loginDetail, String msg) {
     // dom.Document document = htmlparser.parse(msg);
     return Container(
-      padding: EdgeInsets.all(5),
-      margin: EdgeInsets.symmetric(vertical: 1),
+      padding: EdgeInsets.all(12),
+      margin: EdgeInsets.symmetric(vertical: 10),
       child: Responsive(children: <Widget>[
         Div(
             divison: const Division(
@@ -341,21 +383,79 @@ class MenuState extends State<Menu> {
         MediaQuery.of(context).padding.top;
   }
 
+  Future<void> initPlatformState() async {
+    String udid;
+    try {
+      udid = await FlutterUdid.udid;
+    } on PlatformException {
+      udid = 'Failed to get UDID.';
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      uuid = udid;
+      // print(uuid + "***");
+    });
+  }
+
+  Future<void> chkUuidIdcard() async {
+    String url = "http://dbdoh.doh.go.th:9000/existUuid/" + uuid;
+
+    http.Response response = await http.post(
+      Uri.parse(url),
+      headers: <String, String>{
+        'Content-Type': 'application/json;charset=UTF-8',
+        'Accept': 'application/json; charset=UTF-8'
+      },
+    );
+
+    if (response.contentLength == 0 || response.statusCode != 200) {
+      foundUuid = "f";
+      foundIdcard = "";
+      return;
+    }
+    Map map;
+
+    if (response.statusCode == 200) {
+      map = json.decode(response.body);
+      foundIdcard = (map["idcard"]);
+      foundUuid = (map["found"]);
+    }
+  }
+
   @override
   initState() {
     super.initState();
+    //you are not allowed to add async modifier to initState
+    Future.delayed(Duration.zero, () async {
+      //your async 'await' codes goes here
+      await initPlatformState();
+      // print("uuid=" + uuid);
+      // auth.isDeviceSupported().then(
+      //       (bool isSupported) => setState(() => _supportState = isSupported
+      //           ? _SupportState.supported
+      //           : _SupportState.unsupported),
+      //     );
+      this.readyFingerPrint = await fingerPrintReady();
+      if (readyFingerPrint) await chkUuidIdcard();
+    });
+    // chkUserPwd = true;
+
+// uuid =  FlutterUdid.udid as String;
 
     // if (logicalWidth == 0.0) {
     // var pixelRatio = window.devicePixelRatio;
     // var logicalScreenSize = window.physicalSize / pixelRatio;
     // logicalWidth = logicalScreenSize.width;
     // }
-
+/*
     auth.isDeviceSupported().then(
           (bool isSupported) => setState(() => _supportState = isSupported
               ? _SupportState.supported
               : _SupportState.unsupported),
         );
+*/
 // readyFingerPrint= await this.fingerPrintReady();
     // player = AudioPlayer();
 
@@ -587,7 +687,9 @@ class MenuState extends State<Menu> {
                       ),
                       child: loginDetail.token == ""
                           ? Text("")
-                          : buildButtonRegister(loginDetail, processUsr),
+                          : loginBy == "userPassword"
+                              ? buildButtonRegister(loginDetail, processUsr)
+                              : Text(""),
                     ),
                   ]),
                 )),
@@ -1309,6 +1411,13 @@ class MenuState extends State<Menu> {
           size: 15,
         );
         break;
+      case "regFingerPrint":
+      case "fingerPrint":
+        icon = Icon(
+          Icons.fingerprint,
+          size: 15,
+        );
+        break;
       case "manual":
         icon = Icon(Icons.book_online, size: 15);
         break;
@@ -1353,6 +1462,15 @@ class MenuState extends State<Menu> {
     passwordCtrl.text = "";
     idcardCtrl.text = "";
     bdCtrl.text = "";
+    loginBy = "";
+
+    _authorized = 'Not Authorized';
+    _isAuthenticating = false;
+    // readyFingerPrint = false;
+    // foundUuid = "f";
+    // foundIdcard = "";
+
+    // chkUserPwd = true;
     // if (defaultTargetPlatform == TargetPlatform.android) {
     //   SystemNavigator.pop();
     // } else if (defaultTargetPlatform == TargetPlatform.iOS) {
@@ -1773,68 +1891,47 @@ class MenuState extends State<Menu> {
                             sizeContainer: 1 / 3),
                       ), //div
 
-                      Div(
-                        divison: const Division(
-                          colS: 12,
-                          colM: 12,
-                          colL: 12,
-                        ),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                              hintText: 'ชื่อผู้ใช้งาน 3 ตัวอักษรขึ้นไป',
-                              labelText: "ชื่อผู้ใช้งาน",
-                              icon: Icon(Icons.supervised_user_circle)),
-                          controller: userNameCtrl,
-                          // isPassword: false,
-                          // onfocusColor: Colors.blue.shade300,
-                          // isAName:true,
+                      buildOptionLogin(loginDetail),
 
-                          style: TextStyle(fontSize: 18, color: Colors.black),
-                          validator: (value) =>
-                              value.toString().trim().length < 3
-                                  ? 'ชื่อผู้ใช้งาน 3 ตัวอักษรขึ้นไป'
-                                  : null,
-                          // onChanged: (value) {
-                          //   validUser = false;
-                          //   validUser = userNameCtrl.text.trim().length >= 3;
-                          // }
-                        ),
-                      ), //div
-                      Div(
-                          divison: const Division(
-                            colS: 12,
-                            colM: 12,
-                            colL: 12,
-                          ),
-                          child: SizedBox(
-                            height: 10,
-                          )), //div
-                      Div(
-                        divison: const Division(
-                          colS: 12,
-                          colM: 12,
-                          colL: 12,
-                        ),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                              hintText: 'รหัสผ่าน 6 ตัวอักษรขึ้นไป',
-                              labelText: "รหัสผ่าน",
-                              icon: Icon(Icons.key_outlined)),
-                          controller: passwordCtrl,
-                          obscureText: true,
-                          // onfocusColor: Colors.green.shade300,
-                          style: TextStyle(fontSize: 18, color: Colors.black),
-                          validator: (value) =>
-                              value.toString().trim().length < 6
-                                  ? 'รหัสผ่าน 6 ตัวอักษรขึ้นไป'
-                                  : null,
-                          // onChanged: (value) {
-                          //   validPassword = false;
-                          //   validPassword =
-                          //       passwordCtrl.text.trim().length >= 6;
-                          // }
-                        ),
-                      ), //div
+                      selectLogin == 1 ? showUsrPwd(loginDetail) : Text(""),
+
+                      selectLogin == 2 && foundUuid == "f"
+                          ? Div(
+                              divison: const Division(
+                                // offsetS: 4,
+                                // offsetM: 4,
+                                // offsetL: 4,
+
+                                colS: 12,
+                                colM: 12,
+                                colL: 12,
+                              ),
+                              child: Center(
+                                  child: TextFormField(
+                                decoration: InputDecoration(
+                                    hintText: 'เลขบัตรประชาชน 13 หลัก',
+                                    labelText: 'เลขบัตรประชาชน',
+                                    icon: Icon(Icons.perm_identity)),
+                                controller: idcardCtrl,
+                                style: TextStyle(
+                                    fontSize: 18, color: Colors.black),
+                                // isPassword: false,
+                                // onfocusColor: Colors.blue.shade300,
+                                // isAName:true,
+
+                                validator: (value) =>
+                                    value.toString().trim().length != 13 ||
+                                            !isNumeric(value)
+                                        ? 'เลขบัตรประชาชน 13 หลัก'
+                                        : null,
+                                // onChanged: (value) {
+                                //   validIdcard =
+                                //       (idcardCtrl.text.trim().length == 13) &&
+                                //           isNumeric(value);
+                                // }
+                              )),
+                            )
+                          : Text(""),
 
                       Div(
                           divison: const Division(
@@ -1845,20 +1942,48 @@ class MenuState extends State<Menu> {
                           child: SizedBox(
                             height: 10,
                           )), //div
+                      selectLogin == 2 && foundUuid == "f"
+                          ? Div(
+                              divison: const Division(
+                                // offsetS: 4,
+                                // offsetM: 4,
+                                // offsetL: 4,
+
+                                colS: 12,
+                                colM: 12,
+                                colL: 12,
+                              ),
+                              child: Center(
+                                  child: buildButtonRegister(
+                                      loginDetail, "regFingerPrint")),
+                            )
+                          : Text(""),
 
                       Div(
-                        divison: const Division(
-                          // offsetS: 4,
-                          // offsetM: 4,
-                          // offsetL: 4,
+                          divison: const Division(
+                            colS: 12,
+                            colM: 12,
+                            colL: 12,
+                          ),
+                          child: SizedBox(
+                            height: 10,
+                          )), //div
+                      selectLogin == 2 && foundUuid == "t"
+                          ? Div(
+                              divison: const Division(
+                                // offsetS: 4,
+                                // offsetM: 4,
+                                // offsetL: 4,
 
-                          colS: 12,
-                          colM: 12,
-                          colL: 12,
-                        ),
-                        child: Center(
-                            child: buildButtonRegister(loginDetail, "login")),
-                      ),
+                                colS: 12,
+                                colM: 12,
+                                colL: 12,
+                              ),
+                              child: Center(
+                                  child: buildButtonRegister(
+                                      loginDetail, "fingerPrint")),
+                            )
+                          : Text("")
                     ],
 
                     //div
@@ -1866,6 +1991,98 @@ class MenuState extends State<Menu> {
                 )),
           ))
     ]);
+  }
+
+  Widget showUsrPwd(LoginDetail loginDetail) {
+    return Container(
+        child: Responsive(children: <Widget>[
+      Div(
+        divison: const Division(
+          colS: 12,
+          colM: 12,
+          colL: 12,
+        ),
+        child: TextFormField(
+          // enabled: chkUserPwd,
+          decoration: InputDecoration(
+              hintText: 'ชื่อผู้ใช้งาน 3 ตัวอักษรขึ้นไป',
+              labelText: "ชื่อผู้ใช้งาน",
+              icon: Icon(Icons.supervised_user_circle)),
+          controller: userNameCtrl,
+          // isPassword: false,
+          // onfocusColor: Colors.blue.shade300,
+          // isAName:true,
+
+          style: TextStyle(fontSize: 18, color: Colors.black),
+          validator: (value) => value.toString().trim().length < 3
+              //&&  this.chkUserPwd
+              ? 'ชื่อผู้ใช้งาน 3 ตัวอักษรขึ้นไป'
+              : null,
+          // onChanged: (value) {
+          //   validUser = false;
+          //   validUser = userNameCtrl.text.trim().length >= 3;
+          // }
+        ),
+      ), //div
+      Div(
+          divison: const Division(
+            colS: 12,
+            colM: 12,
+            colL: 12,
+          ),
+          child: SizedBox(
+            height: 10,
+          )), //div
+      Div(
+        divison: const Division(
+          colS: 12,
+          colM: 12,
+          colL: 12,
+        ),
+        child: TextFormField(
+          // enabled: chkUserPwd,
+          decoration: InputDecoration(
+              hintText: 'รหัสผ่าน 6 ตัวอักษรขึ้นไป',
+              labelText: "รหัสผ่าน",
+              icon: Icon(Icons.key_outlined)),
+          controller: passwordCtrl,
+          obscureText: true,
+          // onfocusColor: Colors.green.shade300,
+          style: TextStyle(fontSize: 18, color: Colors.black),
+          validator: (value) => value.toString().trim().length < 6
+              // &&     this.chkUserPwd
+              ? 'รหัสผ่าน 6 ตัวอักษรขึ้นไป'
+              : null,
+          // onChanged: (value) {
+          //   validPassword = false;
+          //   validPassword =
+          //       passwordCtrl.text.trim().length >= 6;
+          // }
+        ),
+      ),
+      Div(
+          divison: const Division(
+            colS: 12,
+            colM: 12,
+            colL: 12,
+          ),
+          child: SizedBox(
+            height: 10,
+          )), //div
+
+      Div(
+        divison: const Division(
+          // offsetS: 4,
+          // offsetM: 4,
+          // offsetL: 4,
+
+          colS: 12,
+          colM: 12,
+          colL: 12,
+        ),
+        child: Center(child: buildButtonRegister(loginDetail, "login")),
+      ),
+    ]));
   }
 
   Widget report(LoginDetail loginDetail) {
@@ -2106,25 +2323,30 @@ class MenuState extends State<Menu> {
     }
   }
 
-  Future<void> getDocumentRep(LoginDetail loginDetail) async {
+  Future<Widget> getDocumentRep(LoginDetail loginDetail) async {
+    return Text(""); // if (_supportState == _SupportState.unknown)
+    //   return const CircularProgressIndicator();
+    // else if (_supportState == _SupportState.supported)
+    //   return const Text('This device is supported');
+    // else
+    //   return const Text('This device is not supported');
+
     // if (logicalWidth == 0.0) {
     //   var pixelRatio = View.of(context).devicePixelRatio;
     //   var logicalScreenSize = View.of(context).physicalSize / pixelRatio;
     //   logicalWidth = logicalScreenSize.width;
     // }
-
-    if (!this.runOneTime) {
-      calLogicalWidth(loginDetail);
-      await countRegister(loginDetail);
-      readyFingerPrint = await fingerPrintReady();
-      // print("fg="+readyFingerPrint.toString());
-      runOneTime = true;
-      //List l 
-      uuid= await getDeviceDetails();
-      // uuid = l[2];
-      print(uuid);
+    /* try {
+      if (!this.runOneTime) {
+        calLogicalWidth(loginDetail);
+        await countRegister(loginDetail);
+        
+        runOneTime = true;
+      }
+    } catch (e) {
+      print(e);
     }
-
+    */
     // if (uuid==""){
     // List l = await getDeviceDetails();
     // uuid = l[2];
@@ -2452,30 +2674,27 @@ class MenuState extends State<Menu> {
                   color: Colors.black))),
     );
   }
-// List<String>
-  static Future<String> getDeviceDetails() async {
-    // String deviceName = "";
-    // String deviceVersion = "";
-    String? identifier = "99999";
-    // final DeviceInfoPlugin deviceInfoPlugin = new DeviceInfoPlugin();
+
+/*
+  static Future<List<String>> getDeviceDetails() async {
+    String deviceName = "";
+    String deviceVersion = "";
+    String identifier = "99999";
+    final DeviceInfoPlugin deviceInfoPlugin = new DeviceInfoPlugin();
     try {
       if (Platform.isAndroid) {
-        // var build = await deviceInfoPlugin.androidInfo;
+        var build = await deviceInfoPlugin.androidInfo;
         // if (build.isPhysicalDevice) {
-        // deviceName = build.model;
-        // deviceVersion = build.version.toString();
-       
-        // identifier = build.id; //UUID for Android
-        // identifier = await PlatformDeviceId.getDeviceId;
-        identifier="";
+        deviceName = build.model;
+        deviceVersion = build.version.toString();
+        identifier = build.androidId; //UUID for Android
         // }
       } else if (Platform.isIOS) {
-        /*var data = await deviceInfoPlugin.iosInfo;
+        var data = await deviceInfoPlugin.iosInfo;
         // if (data.isPhysicalDevice) {
         deviceName = data.name;
         deviceVersion = data.systemVersion;
-        identifier = data.id; //UUID for iOS
-        */
+        identifier = data.identifierForVendor; //UUID for iOS
         // }
       }
     } on PlatformException {
@@ -2483,9 +2702,9 @@ class MenuState extends State<Menu> {
     }
 
 // if (!mounted) return[];
-    return identifier!;//    [deviceName, deviceVersion, identifier!];
+    return [deviceName, deviceVersion, identifier];
   }
-
+*/
   Future<void> loginGetToken(LoginDetail loginDetail) async {
     // if (userNameCtrl.text.trim().length == 0 ||
     //     passwordCtrl.text.trim().length == 0) {
@@ -2552,7 +2771,83 @@ class MenuState extends State<Menu> {
       String msg = "ยินดีต้อนรับเข้าสู่ระบบงาน";
       MsgShow().showMsg(msg, TypeMsg.Information, context);
       loginDetail.setUserName = userNameCtrl.text;
+      loginBy = "userPassword";
+      setState(() {
+        userNameCtrl.text = "";
+        passwordCtrl.text = "";
+        bdCtrl.text = "";
+        idcardCtrl.text = "";
+      });
+    }
+  }
 
+  Future<void> loginGetTokenFingerPrint(LoginDetail loginDetail) async {
+    // if (userNameCtrl.text.trim().length == 0 ||
+    //     passwordCtrl.text.trim().length == 0) {
+    //   String msg = "ต้องบันทึกค่าแต่ละช่องข้อมูลก่อน...";
+    //   MsgShow().showMsg(msg, TypeMsg.Warning, context);
+    //   return;
+    // }
+
+    String url = "http://dbdoh.doh.go.th:9000/login";
+
+    String username = "gdbf-7ho9yh'vp^jfy[wx", password = "fingerPrint@Doh";
+    loginDetail.token = "";
+    loginDetail.idcard = "";
+
+    // final String res = await rootBundle.loadString('assets/user.json');
+    // final data = await json.decode(res);
+    // username = data["username"];
+    // password = data["password"];
+    // username = userNameCtrl.text;
+    // password = passwordCtrl.text;
+
+    http.Response response = await http.post(
+      Uri.parse(url),
+      headers: <String, String>{
+        'Content-Type': 'application/json;charset=UTF-8',
+        'Accept': 'application/json; charset=UTF-8'
+      },
+      body: jsonEncode(
+          <String, String>{"username": username, "password": password}),
+    );
+
+    if (response.contentLength == 0 || response.statusCode != 200) {
+      String msg = "ชื่อหรือรหัสผ่านไม่ถูกต้อง";
+      MsgShow().showMsg(msg, TypeMsg.Warning, context);
+      return;
+    }
+    Map map;
+
+    if (response.statusCode == 200) {
+      map = json.decode(response.body);
+      loginDetail.token = (map["accessToken"]);
+// print(map);
+      url = "http://dbdoh.doh.go.th:9000/userLogin/" + username;
+      response = await http.get(
+        Uri.parse(url),
+        headers: <String, String>{
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Accept': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer ' + loginDetail.token
+        },
+      );
+      map = json.decode(response.body);
+      // print(map);
+      String msgLast = "";
+      if (response.statusCode == 200) {
+        loginDetail.idcard = foundIdcard; //   (map["idcard"]);
+        loginDetail.id = (map["id"]);
+        msgLast = await getLastLogin(loginDetail.idcard);
+        loginDetail.msgLast = msgLast;
+        insertLastLogin(loginDetail.idcard);
+      }
+// print(loginDetail.id);
+      // debugPrint(loginDetail.token);
+      String msg = "ยินดีต้อนรับเข้าสู่ระบบงาน";
+      MsgShow().showMsg(msg, TypeMsg.Information, context);
+      loginDetail.setUserName = userNameCtrl.text;
+      loginBy = "fingerPrint";
       setState(() {
         userNameCtrl.text = "";
         passwordCtrl.text = "";
@@ -3246,9 +3541,10 @@ class MenuState extends State<Menu> {
   Widget visibilityPage(LoginDetail loginDetail) {
     int choice = 0;
     bool show = false;
-    if (!this.runOneTime) {
     calLogicalWidth(loginDetail);
-    countRegister(loginDetail);
+    if (!this.runOneTime) {
+      countRegister(loginDetail);
+      // print(uuid);
       runOneTime = true;
     }
     switch (this.itemIndex) {
@@ -3301,13 +3597,13 @@ class MenuState extends State<Menu> {
                 subMenuBackgroundColor: Colors.grey.shade100,
                 header: Container(
                   decoration: BoxDecoration(
-                      // borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(16),
                       gradient: LinearGradient(
                           //Colors.yellow.shade100, Colors.green.shade100
                           colors: [
-                        Colors.yellow.shade100,
-                        Colors.green.shade100
-                      ])),
+                            Colors.yellow.shade100,
+                            Colors.green.shade100
+                          ])),
                   // Header for Drawer
                   height: loginDetail.logicalHeight *
                       0.25, //    size.height * 0.25,
@@ -3357,25 +3653,21 @@ class MenuState extends State<Menu> {
         ],
       ),
       body: Consumer<LoginDetail>(
-          builder: (context, loginDetail,
-                  child) =>  visibilityPage(loginDetail)
+          builder: (context, loginDetail, child) => visibilityPage(loginDetail)
 /*
-              new FutureBuilder(
-                  future: this.getDocumentRep(loginDetail),
-                  builder:
-                      (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting)
-                      return Center(child: CircularProgressIndicator());
-                    else if (snapshot.hasError)
-                      return Text("ERROR: ${snapshot.error}");
-                    else
-                      return
-                          //          _isLoading
-                          // ? CircularProgressIndicator():
-                          visibilityPage(loginDetail);
-                  })
-                  */
-                  ),
+                  FutureBuilder(
+                      future: this.getDocumentRep(loginDetail),
+                      builder:
+                          (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting)
+                          return Center(child: CircularProgressIndicator());
+                        else if (snapshot.hasError)
+                          return Text("ERROR: ${snapshot.error}");
+                        else //if (snapshot.connectionState== ConnectionState.done)
+                          return visibilityPage(loginDetail);
+                      })
+                      */
+          ),
       bottomNavigationBar: Consumer<LoginDetail>(
         builder: (context, loginDetail, child) => BottomNavigationBar(
             type: BottomNavigationBarType.fixed,
@@ -3406,7 +3698,7 @@ class MenuState extends State<Menu> {
             currentIndex: itemIndex,
             onTap: (index) async {
               // manaualView = false;
-
+              // await getDocumentRep(loginDetail);
               switch (index) {
                 case 4:
                   // this.processUsr == "register"
@@ -3433,7 +3725,7 @@ class MenuState extends State<Menu> {
                 default:
               }
               setState(() {
-                networkImg = false;
+                // networkImg = false;
                 itemIndex = index;
                 appTitle = loginDetail.titleBar;
                 // _selectMenu = SelectMenu.mnuNull;
@@ -3511,6 +3803,12 @@ class MenuState extends State<Menu> {
       case "share-slip":
         msg = " แชร์รายงาน";
         break;
+      case "regFingerPrint":
+        msg = " ลงทะเบียนลายนิ้วมือ";
+        break;
+      case "fingerPrint":
+        msg = " เข้าระบบด้วยลายนิ้วมือ";
+        break;
       default:
     }
     return InkWell(
@@ -3553,6 +3851,20 @@ class MenuState extends State<Menu> {
             //resetpwd
 
             modifyUsr(loginDetail);
+          } else if (type == "fingerPrint") {
+            if (!this.readyFingerPrint) {
+              msg = "ไม่สามารถใช้งานสแกนลายนิ้วมือที่เครื่องนี้ได้";
+              MsgShow().showMsg(msg, TypeMsg.Warning, context);
+              return;
+            }
+            await fingerPrint(loginDetail);
+          } else if (type == "regFingerPrint") {
+            if (!this.readyFingerPrint) {
+              msg = "ไม่สามารถใช้งานสแกนลายนิ้วมือที่เครื่องนี้ได้";
+              MsgShow().showMsg(msg, TypeMsg.Warning, context);
+              return;
+            }
+            await registerFingerPrint();
           }
         }
       }, //height=40
@@ -3587,6 +3899,116 @@ class MenuState extends State<Menu> {
           margin: EdgeInsets.only(top: 4),
           padding: EdgeInsets.all(3)),
     );
+  }
+
+  Widget buildOptionLogin(LoginDetail loginDetail, {String colorBG = ""}) {
+    //select_GE=_selectMenu == SelectMenu.mnuEditG ? 1:2;
+    return Container(
+      padding: EdgeInsets.all(5),
+      margin: EdgeInsets.only(top: 5),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+              colors: [Colors.yellow.shade100, Colors.green.shade100])),
+      // decoration: BoxDecoration(
+      //     color: Colors.green[50], borderRadius: BorderRadius.circular(16)),
+      child: Responsive(children: <Widget>[
+        Div(
+          divison: const Division(
+            colS: 12,
+            colM: 4,
+            colL: 4,
+          ),
+          child: ListTile(
+            contentPadding: EdgeInsets.all(0),
+            title: Text("ใช้ชื่อผู้ใช้งาน รหัสผ่าน"),
+            leading: Radio(
+              toggleable: false, //unselect ==null
+              value: 1,
+              groupValue: selectLogin,
+              onChanged: (value) {
+                selectLogin = value as int?;
+                // this.processUsr = this.processUsrStr[selectUsr! - 1];
+                setState(() {});
+              },
+              activeColor: Colors.green,
+            ),
+          ),
+        ),
+        Div(
+          divison: const Division(
+            colS: 12,
+            colM: 4,
+            colL: 4,
+          ),
+          child: ListTile(
+            contentPadding: EdgeInsets.all(0),
+            title: Text("ใช้สแกนลายนิ้วมือ"),
+            leading: Radio(
+              toggleable: false,
+              value: 2,
+              groupValue: selectLogin,
+              onChanged: (value) {
+                selectLogin = value as int?;
+                // this.processUsr = this.processUsrStr[selectUsr! - 1];
+                setState(() {});
+              },
+              activeColor: Colors.green,
+            ),
+          ),
+        ),
+      ]),
+    );
+  }
+
+  Future<void> registerFingerPrint() async {
+    String url = "http://dbdoh.doh.go.th:9000/idcardUuidIns/" +
+        idcardCtrl.text +
+        "?uuid=" +
+        uuid;
+
+    http.Response response = await http.post(
+      Uri.parse(url),
+      headers: <String, String>{
+        'Content-Type': 'application/json;charset=UTF-8',
+        'Accept': 'application/json; charset=UTF-8'
+      },
+    );
+    bool err = false;
+    String msg;
+    Map map;
+    if (response.contentLength == 0 || response.statusCode != 200) {
+      map = json.decode(response.body);
+      msg = (map["message"]);
+      MsgShow().showMsg(msg, TypeMsg.Warning, context);
+      return;
+    }
+
+    if (response.statusCode == 200) {
+      map = json.decode(response.body);
+      err = (map["err"]);
+    }
+    if (err) {
+      msg = "เลขบัตรประชาชน " +
+          idcardCtrl.text +
+          " ถูกใช้งานที่เครื่อง " +
+          uuid +
+          "  แล้ว";
+      MsgShow().showMsg(msg, TypeMsg.Warning, context);
+    } else {
+      msg = "ลงทะเบียนลายนิ้วมือด้วยเลขบัตรประชาชนเรียบร้อยแล้ว ";
+      MsgShow().showMsg(msg, TypeMsg.Information, context);
+      await chkUuidIdcard();
+      setState(() {});
+    }
+  }
+
+  Future<void> fingerPrint(LoginDetail loginDetail) async {
+  await  popupFingerPrint();
+    if (_authorized == 'Authorized' && loginBy != "fingerPrint") {
+      loginGetTokenFingerPrint(loginDetail);
+      setState(() {});
+    }
   }
 }
 
