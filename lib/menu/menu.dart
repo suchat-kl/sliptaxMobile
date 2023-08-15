@@ -93,6 +93,7 @@ class MenuState extends State<Menu> {
   final TextEditingController passwordCtrl = TextEditingController();
   final TextEditingController bdCtrl = TextEditingController();
   String processUsr = "register";
+  
   // int fontSize=18;
   int? selectUsr = 1;
   int? selectLogin = 2;
@@ -350,6 +351,7 @@ class MenuState extends State<Menu> {
   @override
   void dispose() {
     // player.dispose();
+   
     super.dispose();
   }
 
@@ -423,7 +425,21 @@ class MenuState extends State<Menu> {
       foundUuid = (map["found"]);
     }
   }
-
+/*
+Future<Widget>  countRegSizeWin() async {
+   return Consumer<LoginDetail>(
+        builder: (context, loginDetail, child) => FutureBuilder(
+            future: this.getDocumentRep(loginDetail),
+            builder: (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting)
+                return Center(child: CircularProgressIndicator());
+              else if (snapshot.hasError)
+                return Text("ERROR: ${snapshot.error}");
+              else //if (snapshot.connectionState== ConnectionState.done)
+                return Text("");
+            }));
+  }
+*/
   @override
   initState() {
     super.initState();
@@ -439,6 +455,7 @@ class MenuState extends State<Menu> {
       //     );
       this.readyFingerPrint = await fingerPrintReady();
       if (readyFingerPrint) await chkUuidIdcard();
+      // await countRegSizeWin();
     });
     // chkUserPwd = true;
 
@@ -1439,7 +1456,7 @@ class MenuState extends State<Menu> {
     return icon;
   }
 
-  void signOut(BuildContext context, LoginDetail loginDetail) {
+  signOut(BuildContext context, LoginDetail loginDetail) {
     // Navigator.pushNamed(context, "/menu");
     // manaualView = false;
     /*
@@ -1458,6 +1475,7 @@ class MenuState extends State<Menu> {
     loginDetail.idcard = "";
     loginDetail.setUserName = "";
     loginDetail.msgLast = "";
+    loginDetail.cntregis="";
     userNameCtrl.text = "";
     passwordCtrl.text = "";
     idcardCtrl.text = "";
@@ -1466,6 +1484,7 @@ class MenuState extends State<Menu> {
 
     _authorized = 'Not Authorized';
     _isAuthenticating = false;
+    runOneTime=false;
     // readyFingerPrint = false;
     // foundUuid = "f";
     // foundIdcard = "";
@@ -1477,6 +1496,8 @@ class MenuState extends State<Menu> {
     //   exit(0);
     // } else {}
     setState(() {});
+
+
 /*
     if (Platform.isAndroid) {
       SystemNavigator.pop();
@@ -2324,6 +2345,8 @@ class MenuState extends State<Menu> {
   }
 
   Future<Widget> getDocumentRep(LoginDetail loginDetail) async {
+    // calLogicalWidth(loginDetail);
+    await countRegister(loginDetail);
     return Text(""); // if (_supportState == _SupportState.unknown)
     //   return const CircularProgressIndicator();
     // else if (_supportState == _SupportState.supported)
@@ -3547,6 +3570,7 @@ class MenuState extends State<Menu> {
       // print(uuid);
       runOneTime = true;
     }
+    
     switch (this.itemIndex) {
       case 4:
         choice = 7;
@@ -4004,7 +4028,7 @@ class MenuState extends State<Menu> {
   }
 
   Future<void> fingerPrint(LoginDetail loginDetail) async {
-  await  popupFingerPrint();
+    await popupFingerPrint();
     if (_authorized == 'Authorized' && loginBy != "fingerPrint") {
       loginGetTokenFingerPrint(loginDetail);
       setState(() {});
