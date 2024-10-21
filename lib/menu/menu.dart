@@ -1,5 +1,20 @@
 // ignore_for_file: deprecated_member_use
+// import 'dart:js' as js;
+// import 'package:app_links/app_links.dart';
 
+// import 'package:file_picker/file_picker.dart';
+// import 'package:open_file/open_file.dart';
+// import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+// import 'package:package_info_plus/package_info_plus.dart';
+// import 'package:open_file_plus/open_file_plus.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:open_file/open_file.dart';
+import 'package:url_launcher/url_launcher.dart';
+// import 'package:webview_flutter/webview_flutter.dart';
+// import 'package:webview_flutter_android/webview_flutter_android.dart';
+// import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
+import 'package:flutter_web_auth/flutter_web_auth.dart';
+// import 'package:app_links/app_links.dart';
 import 'package:flutter_udid/flutter_udid.dart';
 // import 'package:platform_device_id/platform_device_id.dart';
 import 'package:responsive_ui/responsive_ui.dart';
@@ -60,7 +75,10 @@ import 'package:facesliptax/message.dart';
 
 // import 'package:timezone/data/latest_all.dart' as tz;
 // import 'package:timezone/timezone.dart' as tz;
-import 'package:open_file_plus/open_file_plus.dart';
+
+// import 'package:url_launcher/url_launcher_string.dart';
+// import 'package:webview_flutter/webview_flutter.dart';
+// import 'package:webview_flutter/webview_flutter.dart';
 
 enum SelectMenu {
   mnuNull,
@@ -93,11 +111,17 @@ class MenuState extends State<Menu> {
   final TextEditingController passwordCtrl = TextEditingController();
   final TextEditingController bdCtrl = TextEditingController();
   String processUsr = "register";
-  
+  bool firstChk = true;
   // int fontSize=18;
+  // bool viewPdf = false;
   int? selectUsr = 1;
   int? selectLogin = 2;
-  List<String> processUsrStr = ["register", "changepwd", "resetpwd"];
+  List<String> processUsrStr = [
+    "register",
+    "changepwd",
+    "resetpwd",
+    "changeusr"
+  ];
   // String _message = "";
   // String _path = "";
   // String _size = "";
@@ -142,6 +166,9 @@ class MenuState extends State<Menu> {
   bool validReport = false;
   String appTitle = "";
 
+  // bool showthaIDQR = false;
+  // String thaIDQR = "";
+
   final LocalAuthentication auth = LocalAuthentication();
   // _SupportState _supportState = _SupportState.unknown;
   bool? _canCheckBiometrics;
@@ -150,6 +177,12 @@ class MenuState extends State<Menu> {
   bool _isAuthenticating = false;
   bool readyFingerPrint = false;
   String foundUuid = "f", foundIdcard = "";
+
+  bool showPeriod = false;
+
+  String period = "2";
+  List<int> year2Period = [];
+  bool has2Period = false;
   // bool chkUserPwd = true;
 
   // static const iosStrings = const IOSAuthMessages(
@@ -351,7 +384,7 @@ class MenuState extends State<Menu> {
   @override
   void dispose() {
     // player.dispose();
-   
+
     super.dispose();
   }
 
@@ -402,7 +435,7 @@ class MenuState extends State<Menu> {
   }
 
   Future<void> chkUuidIdcard() async {
-    String url = "http://dbdoh.doh.go.th:9000/existUuid/" + uuid;
+    String url = "https://dbdoh.doh.go.th:9000/existUuid/" + uuid;
 
     http.Response response = await http.post(
       Uri.parse(url),
@@ -425,6 +458,7 @@ class MenuState extends State<Menu> {
       foundUuid = (map["found"]);
     }
   }
+
 /*
 Future<Widget>  countRegSizeWin() async {
    return Consumer<LoginDetail>(
@@ -440,9 +474,38 @@ Future<Widget>  countRegSizeWin() async {
             }));
   }
 */
+
   @override
   initState() {
+    /*
+    String msg = "";
+    String code = Uri.base.queryParameters['code'].toString();
+    String error = Uri.base.queryParameters['error'].toString();
+    print(error);
+    // print(error.length);
+    print("*******");
+    print(code);
+    // print(code.length);
+    foundIdcard = "";
+    if (error != "null") {
+      // print(error);
+      // print("user not accept");
+      msg = "ผู้ใช้งานไม่ยอมรับการให้ข้อมูล";
+      MsgShow().showMsg(msg, TypeMsg.Information, context);
+    } else if (code != "null") {
+      // print(code);
+      // print("user accept");
+
+      WidgetsBinding.instance.addPostFrameCallback((_) //=>
+          {
+        // thaidLogin(code);
+      });
+    }
+*/
     super.initState();
+    // if (!kIsWeb) {
+    //   startServer();
+    // }
     //you are not allowed to add async modifier to initState
     Future.delayed(Duration.zero, () async {
       //your async 'await' codes goes here
@@ -487,8 +550,9 @@ Future<Widget>  countRegSizeWin() async {
 
     flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
     final android = AndroidInitializationSettings('@mipmap/ic_launcher');
-    final iOS = IOSInitializationSettings();
-    final initSettings = InitializationSettings(android: android, iOS: iOS);
+    // final iOS = IOSInitializationSettings();
+    final initSettings =
+        InitializationSettings(android: android); //, iOS: iOS);
 
     flutterLocalNotificationsPlugin.initialize(
       initSettings,
@@ -564,6 +628,28 @@ Future<Widget>  countRegSizeWin() async {
             leading: Radio(
               toggleable: false, //unselect ==null
               value: 3,
+              groupValue: selectUsr,
+              onChanged: (value) {
+                selectUsr = value as int?;
+                this.processUsr = this.processUsrStr[selectUsr! - 1];
+                setState(() {});
+              },
+              activeColor: Colors.green,
+            ),
+          ),
+        ),
+        Div(
+          divison: const Division(
+            colS: 12,
+            colM: 4,
+            colL: 4,
+          ),
+          child: ListTile(
+            contentPadding: EdgeInsets.all(0),
+            title: Text("เปลี่ยนชื่อผู้ใช้งาน"),
+            leading: Radio(
+              toggleable: false, //unselect ==null
+              value: 4,
               groupValue: selectUsr,
               onChanged: (value) {
                 selectUsr = value as int?;
@@ -1279,7 +1365,7 @@ Future<Widget>  countRegSizeWin() async {
 
   modifyUsr(LoginDetail loginDetail) async {
     String msg = "";
-    String url = "http://dbdoh.doh.go.th:9000/";
+    String url = "https://dbdoh.doh.go.th:9000/";
     switch (processUsr) {
       case "register":
         // if (userNameCtrl.text.trim().length == 0 ||
@@ -1309,13 +1395,16 @@ Future<Widget>  countRegSizeWin() async {
         // }
         url += "resetpwd/1?bd=" + bdCtrl.text;
         break;
+      case "changeusr":
+        url += "resetpwd/99?bd=" + bdCtrl.text;
+        break;
       default:
     }
 
     Map<String, String> body = {
       "name": "autoName",
       "username": userNameCtrl.text == "" ? "name" : userNameCtrl.text,
-      "password": passwordCtrl.text,
+      "password": passwordCtrl.text == "" ? "xxxxxxxxxx" : passwordCtrl.text,
       "email": "6@doh.go.th",
       "idcard": idcardCtrl.text
     };
@@ -1368,7 +1457,7 @@ Future<Widget>  countRegSizeWin() async {
         MsgShow().showMsg(msg, TypeMsg.Warning, context);
       }
     } //changepwd
-    else if (processUsr == "resetpwd") {
+    else if (processUsr == "resetpwd" || processUsr == "changeusr") {
       response = await http.put(
         Uri.parse(url),
         headers: <String, String>{
@@ -1387,7 +1476,11 @@ Future<Widget>  countRegSizeWin() async {
         passwordCtrl.text = "";
         idcardCtrl.text = "";
         bdCtrl.text = "";
-        msg = "กำหนดรหัสผ่านใหม่เรียบร้อยแล้ว...";
+
+        if (processUsr == "resetpwd")
+          msg = "กำหนดรหัสผ่านใหม่เรียบร้อยแล้ว...";
+        else if (processUsr == "changeusr")
+          msg = "กำหนดชื่อผู้ใช้งานใหม่เรียบร้อยแล้ว...";
         MsgShow().showMsg(msg, TypeMsg.Information, context);
       } else {
         msg = map["message"];
@@ -1475,7 +1568,7 @@ Future<Widget>  countRegSizeWin() async {
     loginDetail.idcard = "";
     loginDetail.setUserName = "";
     loginDetail.msgLast = "";
-    loginDetail.cntregis="";
+    loginDetail.cntregis = "";
     userNameCtrl.text = "";
     passwordCtrl.text = "";
     idcardCtrl.text = "";
@@ -1484,7 +1577,7 @@ Future<Widget>  countRegSizeWin() async {
 
     _authorized = 'Not Authorized';
     _isAuthenticating = false;
-    runOneTime=false;
+    runOneTime = false;
     // readyFingerPrint = false;
     // foundUuid = "f";
     // foundIdcard = "";
@@ -1496,7 +1589,6 @@ Future<Widget>  countRegSizeWin() async {
     //   exit(0);
     // } else {}
     setState(() {});
-
 
 /*
     if (Platform.isAndroid) {
@@ -1576,7 +1668,7 @@ Future<Widget>  countRegSizeWin() async {
 
   Container buildImage(String title1, LoginDetail loginDetail,
       {double sizeContainer = (1 / 3)}) {
-    String title2 = " จำนวนผู้ลงทะเบียน:" + loginDetail.cntregis;
+    String title2 = " จำนวนผู้ใช้ThaID:ลงทะเบียน:" + loginDetail.cntregis;
     String title3 = " ใช้งานครั้งล่าสุดเมื่อ:" + loginDetail.msgLast;
     return Container(
       padding: EdgeInsets.all(3),
@@ -1657,7 +1749,7 @@ Future<Widget>  countRegSizeWin() async {
     else
       imgName = loginDetail.idcard;
     String url =
-        "http://dbdoh.doh.go.th:9000/files/" + imgName + ext + "?type=" + type;
+        "https://dbdoh.doh.go.th:9000/files/" + imgName + ext + "?type=" + type;
     switch (type) {
       case "register":
         if (_imageRegister != null && networkImg == false) {
@@ -1731,7 +1823,7 @@ Future<Widget>  countRegSizeWin() async {
         return;
       }
 
-      url = "http://dbdoh.doh.go.th:9000/upload_regis/" +
+      url = "https://dbdoh.doh.go.th:9000/upload_regis/" +
           loginDetail.idcard +
           ext;
     } else if (type == "login") {
@@ -1739,7 +1831,7 @@ Future<Widget>  countRegSizeWin() async {
       loginDetail.token = "";
       validReport = false;
       imgLoginTmp = this.uuid + ext; //this.uuid    "imgTmp"
-      url = "http://dbdoh.doh.go.th:9000/upload_login/" + imgLoginTmp;
+      url = "https://dbdoh.doh.go.th:9000/upload_login/" + imgLoginTmp;
     }
 
     // String status = "";
@@ -2004,7 +2096,45 @@ Future<Widget>  countRegSizeWin() async {
                                   child: buildButtonRegister(
                                       loginDetail, "fingerPrint")),
                             )
-                          : Text("")
+                          : Text(""),
+
+                      Div(
+                          divison: const Division(
+                            colS: 12,
+                            colM: 12,
+                            colL: 12,
+                          ),
+                          child: SizedBox(
+                            height: 10,
+                          )),
+                      selectLogin == 3
+                          ? Div(
+                              divison: const Division(
+                                // offsetS: 4,
+                                // offsetM: 4,
+                                // offsetL: 4,
+
+                                colS: 12,
+                                colM: 12,
+                                colL: 12,
+                              ),
+                              child: Column(
+                                children: [
+                                  // showthaIDQR
+                                  //     ? Center(
+                                  //         child: WebView(
+                                  //           initialUrl: thaIDQR,
+                                  //           javascriptMode:
+                                  //               JavascriptMode.unrestricted,
+                                  //         ),
+                                  //       )
+                                  //     : Text(""),
+                                  Center(
+                                      child: buildButtonRegister(
+                                          loginDetail, "thaid")),
+                                ],
+                              ))
+                          : Text(""),
                     ],
 
                     //div
@@ -2270,6 +2400,21 @@ Future<Widget>  countRegSizeWin() async {
     // RegExp exp;
     // String msg = "";
 
+    if (has2Period &&
+        type == "slip" &&
+        int.parse(loginDetail.slipYear) > 2566) {
+      Iterable<int> yearCur = year2Period
+          .where((element) => element == int.parse(loginDetail.slipYear));
+      if (yearCur.isEmpty)
+        showPeriod = false;
+      else
+        showPeriod = true;
+    } else {
+      showPeriod = false;
+      this.period = "2";
+      //
+    }
+
     return Container(
         padding: EdgeInsets.all(5),
         margin: EdgeInsets.only(top: 5),
@@ -2279,47 +2424,81 @@ Future<Widget>  countRegSizeWin() async {
           decoration: InputDecoration(
               hintText: type == "slip" ? 'เริ่ม พ.ศ. 2564' : 'เริ่ม พ.ศ. 2563',
               labelText: type == "slip" ? 'พ.ศ.' : 'พ.ศ. ภาษี',
-              icon: Icon(Icons.date_range_rounded)),
+              icon: Icon(Icons.date_range_outlined)),
+
           controller: type == "slip" ? slipYearCtrl : taxYearCtrl,
           // initialValue: yt,
-
           style: TextStyle(fontSize: 18, color: Colors.black),
-          validator: (value) =>
-              value.toString().trim().length != 4 || !isNumeric(value)
-                  ? 'ปี พ.ศ. 4 หลักไม่ถูกต้อง'
-                  : null,
+          validator: //yearValid,
+              (value) =>
+                  value.toString().trim().length != 4 || !isNumeric(value)
+                      ? 'ปี พ.ศ. มี 4 หลัก'
+                      : null,
+          keyboardType: TextInputType.text,
+          onChanged: (value) {
+            if (value.toString().trim().length != 4 ||
+                !isNumeric(value.toString().trim())) {
+              return;
+            }
 
-          // onChanged: (value) {
-          //   // int data=int.parse(value.toString());
-          //   // if (data >max ) data=max;
-          //   // else if (data <= min) data=min;
-          //   // value=data.toString();
-          //   // type == "slip" ? slipYearCtrl.text=value : taxYearCtrl.text=value;
-          //   if (value.toString().trim().length == 4) {
-          //     exp = RegExp(r"^[\d]{4}$");
-          //     yearValid = exp.hasMatch(value.toString());
-          //     if (yearValid) {
-          //       type == "slip"
-          //           ? loginDetail.slipYear = value.toString()
-          //           : loginDetail.taxYear = value.toString();
-          //     } else
-          //       msg = "บันทึกไม่ครบ 4 หลัก";
-          //     print(msg);
-          //   }
-          // },
+            type == "slip"
+                ? loginDetail.slipYear = value.toString()
+                : loginDetail.taxYear = value.toString();
 
-          keyboardType: TextInputType.number,
+            if (has2Period &&
+                type == "slip" &&
+                int.parse(loginDetail.slipYear) > 2566) {
+              Iterable<int> yearCur = year2Period.where(
+                  (element) => element == int.parse(loginDetail.slipYear));
+              if (yearCur.isEmpty)
+                showPeriod = false;
+              else
+                showPeriod = true;
+
+              setState(() {});
+            } else {
+              showPeriod = false;
+              this.period = "2";
+              setState(() {});
+            }
+          },
+          /*
+          onSaved: (value) {
+            // int data=int.parse(value.toString());
+            // if (data >max ) data=max;
+            // else if (data <= min) data=min;
+            // value=data.toString();
+            // type == "slip" ? slipYearCtrl.text=value : taxYearCtrl.text=value;
+            if (value.toString().trim().length == 4) {
+              exp = RegExp(r"^[\d]{4}$");
+              yearValid = exp.hasMatch(value.toString());
+              if (yearValid) {
+                type == "slip"
+                    ? loginDetail.slipYear = value.toString()
+                    : loginDetail.taxYear = value.toString();
+              } else
+                msg = "บันทึกไม่ครบ 4 หลัก";
+              print(msg);
+            }
+          }
+          
+          ,
+          */
+          // keyboardType: TextInputType.number,
           // obscureText: true,
         ));
   }
 
-  processReport(LoginDetail loginDetail, String mt, String yt) async {
-    String url = "http://dbdoh.doh.go.th:9000/repYT/" +
+  processReport(
+      LoginDetail loginDetail, String mt, String yt, String period) async {
+    String url = "https://dbdoh.doh.go.th:9000/repYT/" +
         loginDetail.idcard +
         "?yt=" +
         yt +
         "&mt=" +
-        mt;
+        mt +
+        "&period=" +
+        period;
 
     http.Response response = await http.get(
       Uri.parse(url),
@@ -2391,7 +2570,7 @@ Future<Widget>  countRegSizeWin() async {
   downloadFile(LoginDetail loginDetail, String type) async {
     if (type == "manual") {
       _fileName = "slipTax.pdf";
-      _fileUrl = "http://dbdoh.doh.go.th:9000/files/slipTax.pdf?type=manual";
+      _fileUrl = "https://dbdoh.doh.go.th:9000/files/slipTax.pdf?type=manual";
       await download();
       return;
     } else if (loginDetail.idcard == "" ||
@@ -2409,26 +2588,38 @@ Future<Widget>  countRegSizeWin() async {
         break;
       default:
     }
-    await processReport(loginDetail, mt, yt); //create report
+    await processReport(loginDetail, mt, yt, this.period); //create report
     MsgShow()
         .showMsg("สร้างรายงานเรียบร้อยแล้ว...", TypeMsg.Information, context);
     if (mt == "00")
       _fileName = loginDetail.taxYear + "-" + loginDetail.idcard + ".pdf";
     else
-      _fileName =
-          loginDetail.slipYear + "-" + mt + "-" + loginDetail.idcard + ".pdf";
-    _fileUrl = "http://dbdoh.doh.go.th:9000/downloadRep/" +
+      _fileName = loginDetail.slipYear +
+          "-" +
+          mt +
+          "-" +
+          this.period +
+          "-" +
+          loginDetail.idcard +
+          ".pdf";
+    _fileUrl = "https://dbdoh.doh.go.th:9000/downloadRep/" +
         loginDetail.idcard +
         "?yt=" +
         yt +
         "&mt=" +
-        mt;
+        mt +
+        "&period=" +
+        this.period;
 // print(type);
 //     print(_fileUrl);
     if (type == "share-download" || type == "share-slip")
       await shareFileFromUrl();
     else {
       await download();
+      //loadPdfFromUrl
+      // setState(() {
+      //   viewPdf = true;
+      // });
       // defaultTargetPlatform == TargetPlatform.android
       //     ?
       //     :
@@ -2458,23 +2649,25 @@ Future<Widget>  countRegSizeWin() async {
     html.window.open(url, "_blank");
   }
 */
+
   Future<int> _onSelectNotification(String? json) async {
     final obj = jsonDecode(json!);
 
-    if (obj['isSuccess']) {
-      try {
-        // print("****************");
-        // print(obj['filePath']);
-        // print("****************");
-        // String s =
-        //     "/data/user/0/th.go.doh.inf.facesliptax/app_flutter/2565-3301500165001.pdf";
-        await OpenFile.open(obj['filePath']);
-      } catch (e) {
-        print("******error open******" + e.toString());
-      }
+    // if (obj['isSuccess']) {
+    try {
+      // print("****************");
+      // print(obj['filePath']);
+      // print("****************");
+      // String s =
+      //     "/data/user/0/th.go.doh.inf.facesliptax/app_flutter/2565-3301500165001.pdf";
+      await OpenFile.open(obj['filePath']);
+    } catch (e) {
+      print("******error open******" + e.toString());
+    }
 
-      // print("*****open file=" + obj['filePath']);
-      return 0;
+    // print("*****open file=" + obj['filePath']);
+    return 0;
+    /*
     } else {
       showDialog(
         context: context,
@@ -2485,6 +2678,7 @@ Future<Widget>  countRegSizeWin() async {
       );
       return 1;
     }
+    */
   }
 
   // var _progress = "";
@@ -2507,6 +2701,7 @@ Future<Widget>  countRegSizeWin() async {
     };
 
     try {
+      print(_fileUrl);
       final response = await _dio.download(
         _fileUrl, savePath,
         // onReceiveProgress: _onReceiveProgress
@@ -2516,7 +2711,11 @@ Future<Widget>  countRegSizeWin() async {
     } catch (ex) {
       result['error'] = ex.toString();
     } finally {
-      await showNotification(result);
+      // if ( !result['isSuccess']) {
+      //   MsgShow().showMsg("ไม่พบข้อมูล...", TypeMsg.Warning, context);
+      //   return;
+      // }
+      /* await showNotification(result);*/
       // print("isSuccess=" + result['isSuccess'].toString());
       await _onSelectNotification(jsonEncode(result));
     }
@@ -2564,8 +2763,8 @@ Future<Widget>  countRegSizeWin() async {
         channelDescription: 'channel description',
         priority: Priority.high,
         importance: Importance.max);
-    final iOS = IOSNotificationDetails();
-    final platform = NotificationDetails(android: android, iOS: iOS);
+    // final iOS = IOSNotificationDetails();
+    final platform = NotificationDetails(android: android); //, iOS: iOS);
     final json = jsonEncode(downloadStatus);
     final isSuccess = downloadStatus['isSuccess'];
 
@@ -2596,7 +2795,7 @@ Future<Widget>  countRegSizeWin() async {
 */
   Future<bool> isValidIdcard(String idcard) async {
     bool valid = false;
-    String url = "http://dbdoh.doh.go.th:9000/isValidIdcard/" + idcard;
+    String url = "https://dbdoh.doh.go.th:9000/isValidIdcard/" + idcard;
     http.Response response = await http.post(
       Uri.parse(url),
       headers: <String, String>{
@@ -2617,8 +2816,8 @@ Future<Widget>  countRegSizeWin() async {
   }
 
   Future<void> countRegister(LoginDetail loginDetail) async {
-    // String url = "http://dbdoh.doh.go.th:9000/cnt_regis";
-    String url = "http://dbdoh.doh.go.th:9000/cntRigister";
+    // String url = "https://dbdoh.doh.go.th:9000/cnt_regis";
+    String url = "https://dbdoh.doh.go.th:9000/cntRigisterStr";
 
     http.Response response = await http.get(
       Uri.parse(url),
@@ -2633,9 +2832,11 @@ Future<Widget>  countRegSizeWin() async {
 
     // print(response.statusCode);
     if (response.statusCode == 200) {
-      var ret = jsonDecode(response.body);
+      Map ret = jsonDecode(response.body);
       // print ("a"+ret+"a");
-      loginDetail.cntregis = ret.toString(); //  ["count"].toString();
+      loginDetail.cntregis = ret["thaid"] +
+          "/" +
+          ret["total"]; //   ret.toString(); //  ["count"].toString();
       // print(loginDetail.cntregis);
     }
   }
@@ -2736,7 +2937,7 @@ Future<Widget>  countRegSizeWin() async {
     //   return;
     // }
 
-    String url = "http://dbdoh.doh.go.th:9000/login";
+    String url = "https://dbdoh.doh.go.th:9000/login";
 
     String username = "", password = "";
     loginDetail.token = "";
@@ -2770,7 +2971,7 @@ Future<Widget>  countRegSizeWin() async {
       map = json.decode(response.body);
       loginDetail.token = (map["accessToken"]);
 // print(map);
-      url = "http://dbdoh.doh.go.th:9000/userLogin/" + username;
+      url = "https://dbdoh.doh.go.th:9000/userLogin/" + username;
       response = await http.get(
         Uri.parse(url),
         headers: <String, String>{
@@ -2787,8 +2988,32 @@ Future<Widget>  countRegSizeWin() async {
         loginDetail.id = (map["id"]);
         msgLast = await getLastLogin(loginDetail.idcard);
         loginDetail.msgLast = msgLast;
-        insertLastLogin(loginDetail.idcard);
+        insertLastLogin(loginDetail.idcard, "sp");
       }
+//2period
+      url = "https://dbdoh.doh.go.th:9000/user2Period/" + loginDetail.idcard;
+      response = await http.get(
+        Uri.parse(url),
+        headers: <String, String>{
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Accept': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer ' + loginDetail.token
+        },
+      );
+      map = json.decode(response.body);
+      // print(map);
+      has2Period = false;
+      year2Period = [];
+      if (response.statusCode == 200) {
+        String found = (map["found"]);
+        if (found == "true") {
+          has2Period = true;
+          year2Period = json.decode(map["year"]).cast<int>().toList();
+        }
+      }
+// print(has2Period.toString()+":has2period");
+// print(year2Period);
+//2period
 // print(loginDetail.id);
       // debugPrint(loginDetail.token);
       String msg = "ยินดีต้อนรับเข้าสู่ระบบงาน";
@@ -2804,7 +3029,8 @@ Future<Widget>  countRegSizeWin() async {
     }
   }
 
-  Future<void> loginGetTokenFingerPrint(LoginDetail loginDetail) async {
+  Future<void> loginGetTokenFingerPrintOrThaID(
+      LoginDetail loginDetail, String app) async {
     // if (userNameCtrl.text.trim().length == 0 ||
     //     passwordCtrl.text.trim().length == 0) {
     //   String msg = "ต้องบันทึกค่าแต่ละช่องข้อมูลก่อน...";
@@ -2812,7 +3038,7 @@ Future<Widget>  countRegSizeWin() async {
     //   return;
     // }
 
-    String url = "http://dbdoh.doh.go.th:9000/login";
+    String url = "https://dbdoh.doh.go.th:9000/login";
 
     String username = "gdbf-7ho9yh'vp^jfy[wx", password = "fingerPrint@Doh";
     loginDetail.token = "";
@@ -2846,7 +3072,7 @@ Future<Widget>  countRegSizeWin() async {
       map = json.decode(response.body);
       loginDetail.token = (map["accessToken"]);
 // print(map);
-      url = "http://dbdoh.doh.go.th:9000/userLogin/" + username;
+      url = "https://dbdoh.doh.go.th:9000/userLogin/" + username;
       response = await http.get(
         Uri.parse(url),
         headers: <String, String>{
@@ -2863,14 +3089,40 @@ Future<Widget>  countRegSizeWin() async {
         loginDetail.id = (map["id"]);
         msgLast = await getLastLogin(loginDetail.idcard);
         loginDetail.msgLast = msgLast;
-        insertLastLogin(loginDetail.idcard);
+        insertLastLogin(loginDetail.idcard, app);
       }
 // print(loginDetail.id);
       // debugPrint(loginDetail.token);
+
+//2period
+      url = "https://dbdoh.doh.go.th:9000/user2Period/" + loginDetail.idcard;
+      response = await http.get(
+        Uri.parse(url),
+        headers: <String, String>{
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Accept': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer ' + loginDetail.token
+        },
+      );
+      map = json.decode(response.body);
+      // print(map);
+      has2Period = false;
+      year2Period = [];
+      if (response.statusCode == 200) {
+        String found = (map["found"]);
+        if (found == "true") {
+          has2Period = true;
+          year2Period = json.decode(map["year"]).cast<int>().toList();
+        }
+      }
+// print(has2Period.toString()+":has2period");
+// print(year2Period);
+//2period
+
       String msg = "ยินดีต้อนรับเข้าสู่ระบบงาน";
       MsgShow().showMsg(msg, TypeMsg.Information, context);
       loginDetail.setUserName = userNameCtrl.text;
-      loginBy = "fingerPrint";
+      // loginBy = "fingerPrint";
       setState(() {
         userNameCtrl.text = "";
         passwordCtrl.text = "";
@@ -2883,7 +3135,7 @@ Future<Widget>  countRegSizeWin() async {
 /*
   Future<bool> chkUuid(String idcard, String uuid, String status) async {
     bool err = false;
-    String url = "http://dbdoh.doh.go.th:9000/idcardUuidIns/" +
+    String url = "https://dbdoh.doh.go.th:9000/idcardUuidIns/" +
         idcard +
         "?uuid=" +
         uuid +
@@ -2927,7 +3179,7 @@ Future<Widget>  countRegSizeWin() async {
   */
 /*
   Future<bool> cancelPhone(LoginDetail loginDetail) async {
-    String url = "http://dbdoh.doh.go.th:9000/delPhone/" + loginDetail.idcard;
+    String url = "https://dbdoh.doh.go.th:9000/delPhone/" + loginDetail.idcard;
 
     http.Response response = await http.delete(
       Uri.parse(url),
@@ -3051,6 +3303,18 @@ Future<Widget>  countRegSizeWin() async {
                       ),
                       child: buildDropDownMonth(loginDetail),
                     ), //div
+
+                    // showPeriod
+                    //     ? Div(
+                    //         divison: const Division(
+                    //           colS: 12,
+                    //           colM: 12,
+                    //           colL: 12,
+                    //         ),
+                    //         child: buildOptionPeriod(loginDetail),
+                    //       )
+                    //     : Text(""),
+
                     Div(
                       divison: const Division(
                         colS: 12,
@@ -3094,8 +3358,8 @@ Future<Widget>  countRegSizeWin() async {
         break;
       default:
     }
-// http: //dbdoh.doh.go.th:9000/speech2Txt/3301500165001?type=register&msg="สวัสดีชาวโลก"
-    String url = "http://dbdoh.doh.go.th:9000/speech2Txt/" +
+// https: //dbdoh.doh.go.th:9000/speech2Txt/3301500165001?type=register&msg="สวัสดีชาวโลก"
+    String url = "https://dbdoh.doh.go.th:9000/speech2Txt/" +
         loginDetail.idcard +
         "?type=" +
         type +
@@ -3122,7 +3386,7 @@ Future<Widget>  countRegSizeWin() async {
 */
   Future<bool> findName(LoginDetail loginDetail, String type) async {
     bool done = false;
-    String url = "http://dbdoh.doh.go.th:9000/dpis?idcard=" +
+    String url = "https://dbdoh.doh.go.th:9000/dpis?idcard=" +
         loginDetail.idcard +
         "&type=" +
         type;
@@ -3152,7 +3416,7 @@ Future<Widget>  countRegSizeWin() async {
 
 /*
   Future<void> playSound(LoginDetail loginDetail, String type) async {
-    _fileUrl = "http://dbdoh.doh.go.th:9000/files/" +
+    _fileUrl = "https://dbdoh.doh.go.th:9000/files/" +
         type +
         loginDetail.idcard +
         ".wav?type=sound";
@@ -3177,7 +3441,7 @@ Future<Widget>  countRegSizeWin() async {
       return;
     }
 
-    String url = "http://dbdoh.doh.go.th:9000/fingerPrintUuidIns/" +
+    String url = "https://dbdoh.doh.go.th:9000/fingerPrintUuidIns/" +
         "?uuid=" +
         uuid +
         "&status=" +
@@ -3202,7 +3466,7 @@ Future<Widget>  countRegSizeWin() async {
   }
 
   Future<bool> cancelFingerPrint(LoginDetail loginDetail) async {
-    String url = "http://dbdoh.doh.go.th:9000/delFingerPrint/" + uuid;
+    String url = "https://dbdoh.doh.go.th:9000/delFingerPrint/" + uuid;
 
     http.Response response = await http.delete(
       Uri.parse(url),
@@ -3245,7 +3509,7 @@ Future<Widget>  countRegSizeWin() async {
 ระบบงานใบรับรองภาษีและสลิปเงินเดือนกรมทางหลวง
         ใช้สำหรับข้าราชการและลูกจ้างประจำ
         ชื่อและรหัสผ่านใช้เหมือนกับระบบดาวน์โหลดใบรับรองภาษี/สลิปเงินเดือน
-         <a href='http://dbdoh.doh.go.th/yt/'  target="_blank"> http://dbdoh.doh.go.th/yt/</a> </p>\n
+         <a href='https://dbdoh.doh.go.th/yt/'  target="_blank"> https://dbdoh.doh.go.th/yt/</a> </p>\n
         ระบบงานนี้ใช้สำหรับ 
         <ul>
         <li>ใบรับรองภาษี ข้าราชการ,ลูกจ้างประจำ ปัจจุบัน </li>
@@ -3312,7 +3576,7 @@ Future<Widget>  countRegSizeWin() async {
       msg = "ระบบงานใบรับรองภาษีและสลิปเงินเดือนกรมทางหลวง " +
           "ใช้สำหรับข้าราชการและลูกจ้างประจำ" +
           "ชื่อและรหัสผ่าน\nใช้เหมือนกับระบบดาวน์โหลดใบรับรองภาษี " +
-          "http://dbdoh.doh.go.th/yt/ " +
+          "https://dbdoh.doh.go.th/yt/ " +
           // " \n" +
           // " \n" +
           // "\n " +
@@ -3343,7 +3607,7 @@ Future<Widget>  countRegSizeWin() async {
           //       SizedBox(
           //         width: 10,
           //       ),
-          //       Text("Web salary:http://app.doh.go.th:8088/sal/"),
+          //       Text("Web salary:https://app.doh.go.th:8088/sal/"),
           //     ],
           //   ),
           // ),
@@ -3377,7 +3641,7 @@ Future<Widget>  countRegSizeWin() async {
   }
 
   // void _launchURL() async {
-  //   String url1 = "http://app.doh.go.th:8088/sal/";
+  //   String url1 = "https://app.doh.go.th:8088/sal/";
   //   if (!await launchUrlString(url1)) throw 'Could not launch $url1';
   // }
 
@@ -3488,17 +3752,30 @@ Future<Widget>  countRegSizeWin() async {
     });
   }
 */
-  Future<void> insertLastLogin(String idcard) async {
+  Future<void> insertLastLogin(String idcard, String app) async {
     String type = "M";
-    DateTime datetime = DateTime.now();
-    String last = datetime.toString();
-    String url = "http://dbdoh.doh.go.th:9000/insertLastLogin?idcard=" +
+    // DateTime datetime = DateTime.now();
+    // String last = datetime.toString();
+    String last = ""; //datetime.toString();
+    NumberFormat formatter = new NumberFormat("00");
+    DateTime _now = DateTime.now();
+    String d = formatter.format(_now.day);
+    String m = formatter.format(_now.month);
+    String y = formatter.format(_now.year + 543);
+    String h = formatter.format(_now.hour);
+    String mi = formatter.format(_now.minute);
+    String s = formatter.format(_now.second);
+    last = d + "/" + m + "/" + y + "  " + h + ":" + mi + ":" + s;
+
+    String url = "https://dbdoh.doh.go.th:9000/insertLastLogin?idcard=" +
         idcard +
         "&type=" +
         type +
         "&last='" +
         last +
-        "'";
+        "'" +
+        "&app=" +
+        app;
 // print(url);
     http.Response response = await http.post(
       Uri.parse(url),
@@ -3515,7 +3792,7 @@ Future<Widget>  countRegSizeWin() async {
   }
 
   Future<String> getLastLogin(String idcard) async {
-    String url = "http://dbdoh.doh.go.th:9000/findLastLogin?idcard=" + idcard;
+    String url = "https://dbdoh.doh.go.th:9000/findLastLogin?idcard=" + idcard;
 // print(url);
     http.Response response = await http.post(
       Uri.parse(url),
@@ -3543,15 +3820,28 @@ Future<Widget>  countRegSizeWin() async {
           return register(loginDetail);
         else if (this.processUsr == "changepwd")
           return changePassword(loginDetail);
-        else
+        else if (this.processUsr == "resetpwd")
           return resetPassword(loginDetail);
+        else if (this.processUsr == "changeusr")
+          return changeUserName(loginDetail);
+        else
+          return Text("");
       case 2:
         return login(loginDetail);
       case 3:
+        // if (this.viewPdf){
+        //   this.viewPdf=false;
+        //   return showReport(loginDetail);
+        // }
+        // else
         return report(loginDetail);
       case 4:
       //return preview(loginDetail);
       case 5:
+        // if (this.viewPdf) {
+        //     this.viewPdf = false;
+        //     return showReport(loginDetail);
+        //   } else
         return slip(loginDetail);
       case 6:
         return about(loginDetail);
@@ -3559,6 +3849,216 @@ Future<Widget>  countRegSizeWin() async {
     }
 
     return Text("");
+  }
+
+  Widget changeUserName(LoginDetail loginDetail) {
+    // calLogicalWidth();
+    // print(logicalWidth);
+    // bool validbd = false,
+    // validUser = false,
+    // validPassword = false,
+    // validIdcard = false;
+    // passwordCtrl.text="xxxxxxxxxx";
+    return ListView(scrollDirection: Axis.vertical, children: <Widget>[
+      Container(
+          color: Colors.green[50],
+          child: Center(
+            child: Container(
+                width: loginDetail.logicalWidth * (3 / 5),
+                constraints: BoxConstraints(
+                    //maxWidth: 600,
+                    minWidth: 450.0),
+                // width: 450.0,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    gradient: LinearGradient(colors: [
+                      Colors.yellow.shade100,
+                      Colors.green.shade100
+                    ])),
+                margin: EdgeInsets.all(10),
+                padding: EdgeInsets.all(10),
+                child: Form(
+                  key: formKey,
+                  child: Responsive(children: <Widget>[
+                    Div(
+                      divison: const Division(
+                        colS: 12,
+                        colM: 12,
+                        colL: 12,
+                      ),
+                      child: buildImage("กำหนดชื่อผู้ใช้งานใหม่ ", loginDetail,
+                          sizeContainer: (3 / 5)),
+                    ),
+                    Div(
+                      divison: const Division(
+                        colS: 12,
+                        colM: 12,
+                        colL: 12,
+                      ),
+                      child: buildOptionProcessUsr(loginDetail),
+                    ),
+                    Div(
+                        divison: const Division(
+                          colS: 12,
+                          colM: 12,
+                          colL: 12,
+                        ),
+                        child: SizedBox(
+                          height: 10,
+                        )),
+                    Div(
+                      divison: const Division(
+                        colS: 12,
+                        colM: 12,
+                        colL: 12,
+                      ),
+                      child: TextFormField(
+                          decoration: InputDecoration(
+                              hintText: 'เลขบัตรประชาชน 13 หลัก',
+                              labelText: "เลขบัตรประชาชน",
+                              icon: Icon(Icons.perm_identity)),
+                          controller: idcardCtrl,
+                          // isPassword: false,
+                          // onfocusColor: Colors.blue.shade300,
+                          // isAName:true,
+
+                          validator: (value) =>
+                              value.toString().trim().length != 13 ||
+                                      !isNumeric(value)
+                                  ? 'เลขบัตรประชาชน 13 หลัก'
+                                  : null,
+                          style: TextStyle(fontSize: 18, color: Colors.black),
+                          onSaved: (value) {
+                            // validIdcard =
+                            //     (idcardCtrl.text.trim().length == 13) &&
+                            //         isNumeric(value);
+                          }),
+                    ),
+                    Div(
+                        divison: const Division(
+                          colS: 12,
+                          colM: 12,
+                          colL: 12,
+                        ),
+                        child: SizedBox(
+                          height: 10,
+                        )),
+                    Div(
+                      divison: const Division(
+                        colS: 12,
+                        colM: 12,
+                        colL: 12,
+                      ),
+                      child: TextFormField(
+                          decoration: InputDecoration(
+                              hintText:
+                                  'วันที่สองหลักเดือนสองหลักปี พ.ศ.สี่หลัก',
+                              labelText: "วันเกิด",
+                              icon: Icon(Icons.date_range_outlined)),
+                          controller: bdCtrl,
+                          style: TextStyle(fontSize: 18, color: Colors.black),
+                          // isPassword: false,
+                          // onfocusColor: Colors.green.shade300,
+                          validator: (value) =>
+                              value.toString().trim().length != 8 ||
+                                      !isNumeric(value)
+                                  ? 'วันที่สองหลักเดือนสองหลักปี พ.ศ.สี่หลัก'
+                                  : null,
+                          onSaved: (value) {
+                            // validbd = (bdCtrl.text.trim().length == 8) &&
+                            //     (isNumeric(value));
+                          }),
+                    ),
+                    Div(
+                        divison: const Division(
+                          colS: 12,
+                          colM: 12,
+                          colL: 12,
+                        ),
+                        child: SizedBox(
+                          height: 10,
+                        )),
+                    Div(
+                      divison: const Division(
+                        colS: 12,
+                        colM: 12,
+                        colL: 12,
+                      ),
+                      child: TextFormField(
+                          decoration: InputDecoration(
+                              hintText:
+                                  'ชื่อผู้ใช้งานใช้ภาษาอังกฤษตัวเลข 3 ตัวขึ้นไป',
+                              labelText: "ชื่อผู้ใช้งาน",
+                              icon: Icon(Icons.supervised_user_circle)),
+                          controller: userNameCtrl,
+                          style: TextStyle(fontSize: 18, color: Colors.black),
+                          // isPassword: false,
+                          // onfocusColor: Colors.green.shade300,
+                          validator: (value) =>
+                              value.toString().trim().length < 3
+                                  ? 'ชื่อผู้ใช้งาน 3 ตัวอักษรขึ้นไป'
+                                  : null,
+                          onSaved: (value) {
+                            // validbd = (bdCtrl.text.trim().length == 8) &&
+                            //     (isNumeric(value));
+                          }),
+                    ),
+                    // Div(
+                    //     divison: const Division(
+                    //       colS: 12,
+                    //       colM: 12,
+                    //       colL: 12,
+                    //     ),
+                    //     child: SizedBox(
+                    //       height: 10,
+                    //     )),
+                    // Div(
+                    //   divison: const Division(
+                    //     colS: 12,
+                    //     colM: 12,
+                    //     colL: 12,
+                    //   ),
+                    //   child: TextFormField(
+                    //       decoration: InputDecoration(
+                    //           hintText: 'รหัสผ่าน 6 ตัวอักษรขึ้นไป',
+                    //           labelText: "รหัสผ่าน",
+                    //           icon: Icon(Icons.key_outlined)),
+                    //       controller: passwordCtrl,
+                    //       enabled: false,
+                    //       obscureText: true,
+                    //       // isPassword: true,
+                    //       // onfocusColor: Colors.green.shade300,
+                    //       style: TextStyle(fontSize: 18, color: Colors.black),
+                    //       // validator: (value) =>
+                    //       //     value.toString().trim().length < 6
+                    //       //         ? 'รหัสผ่าน 6 ตัวอักษรขึ้นไป'
+                    //       //         : null,
+                    //       onSaved: (value) {
+                    //         // validPassword =
+                    //         //     passwordCtrl.text.trim().length >= 6;
+                    //       }),
+                    // ),
+                    Div(
+                        divison: const Division(
+                          colS: 12,
+                          colM: 12,
+                          colL: 12,
+                        ),
+                        child: SizedBox(
+                          height: 10,
+                        )),
+                    Div(
+                      divison: const Division(
+                        colS: 12,
+                        colM: 12,
+                        colL: 12,
+                      ),
+                      child: buildButtonRegister(loginDetail, processUsr),
+                    ),
+                  ]),
+                )),
+          ))
+    ]);
   }
 
   Widget visibilityPage(LoginDetail loginDetail) {
@@ -3570,7 +4070,7 @@ Future<Widget>  countRegSizeWin() async {
       // print(uuid);
       runOneTime = true;
     }
-    
+
     switch (this.itemIndex) {
       case 4:
         choice = 7;
@@ -3660,6 +4160,7 @@ Future<Widget>  countRegSizeWin() async {
         // automaticallyImplyLeading: false,
         title: Text(appTitle, style: TextStyle(color: Colors.white)),
         centerTitle: true,
+        backgroundColor: Colors.green,
         actions: <Widget>[
           Consumer<LoginDetail>(
             builder: (context, loginDetail, child) => loginDetail.token == ""
@@ -3676,8 +4177,13 @@ Future<Widget>  countRegSizeWin() async {
           ),
         ],
       ),
-      body: Consumer<LoginDetail>(
-          builder: (context, loginDetail, child) => visibilityPage(loginDetail)
+      body:
+          // this.viewPdf?SfPdfViewer.network(
+          //         this._fileUrl)
+          //         :
+          Consumer<LoginDetail>(
+              builder: (context, loginDetail, child) =>
+                  visibilityPage(loginDetail)
 /*
                   FutureBuilder(
                       future: this.getDocumentRep(loginDetail),
@@ -3691,7 +4197,7 @@ Future<Widget>  countRegSizeWin() async {
                           return visibilityPage(loginDetail);
                       })
                       */
-          ),
+              ),
       bottomNavigationBar: Consumer<LoginDetail>(
         builder: (context, loginDetail, child) => BottomNavigationBar(
             type: BottomNavigationBarType.fixed,
@@ -3735,6 +4241,12 @@ Future<Widget>  countRegSizeWin() async {
                 case 0:
                   loginDetail.titleBar = "เข้าระบบ";
                   // await chkFingerPrint(uuid, "");
+                  if (firstChk) {
+                    await initPlatformState();
+                    this.readyFingerPrint = await fingerPrintReady();
+                    if (readyFingerPrint) await chkUuidIdcard();
+                    firstChk = !firstChk;
+                  }
                   break;
                 case 1:
                   loginDetail.titleBar = "ใบรับรองภาษี";
@@ -3752,6 +4264,7 @@ Future<Widget>  countRegSizeWin() async {
                 // networkImg = false;
                 itemIndex = index;
                 appTitle = loginDetail.titleBar;
+                // this.viewPdf=false;
                 // _selectMenu = SelectMenu.mnuNull;
               });
               // if (itemIndex == 1 && foundFingerPrint) {
@@ -3766,20 +4279,120 @@ Future<Widget>  countRegSizeWin() async {
     return menu(context);
   }
 
+  Future download2(Dio dio, String url, String savePath) async {
+    try {
+      Response response = await dio.get(
+        url,
+        onReceiveProgress: showDownloadProgress,
+        //Received data with List<int>
+        options: Options(
+            responseType: ResponseType.bytes,
+            followRedirects: false,
+            validateStatus: (status) {
+              return status! < 500;
+            }),
+      );
+      print(response.headers);
+      File file = File(savePath);
+      var raf = file.openSync(mode: FileMode.write);
+      // response.data is List<int> type
+      raf.writeFromSync(response.data);
+      await raf.close();
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void showDownloadProgress(received, total) {
+    if (total != -1) {
+      print((received / total * 100).toStringAsFixed(0) + "%");
+    }
+  }
+ Future<bool> chkPermission() async {
+    DeviceInfoPlugin plugin = DeviceInfoPlugin();
+    AndroidDeviceInfo   android = await plugin.androidInfo;
+     final   storageStatus = android.version.sdkInt < 33
+          ? await Permission.storage.request()
+          : PermissionStatus.granted;
+   
+    // AndroidDeviceInfo android = await plugin.androidInfo;
+
+    
+
+    if (storageStatus == PermissionStatus.granted) {
+      print("****************granted**************");
+      return true;
+    }
+    if (storageStatus == PermissionStatus.denied) {
+      print("*******************denied***************");
+      return false;
+    }
+    if (storageStatus == PermissionStatus.permanentlyDenied) {
+      openAppSettings();
+    }
+    return true;
+  }
   Future<void> download() async {
     // if (await canLaunch(_fileUrl)) {
     //   await launch(_fileUrl);
+    //   // return;
     // } else {
     //   throw 'Could not launch $_fileUrl';
     // }
 
-    final dir =
-        await getExternalStorageDirectory(); //   getDownloadDirectory();
+    // final
+    Directory? dir = //await getApplicationDocumentsDirectory();
+        await getExternalStorageDirectory();
+    // await getTemporaryDirectory();
+    // await  getDownloadDirectory();
 
+    print("dir=$dir");
+
+    // ignore: unused_local_variable
+    final savePath;
+    if (await chkPermission()){
+       final savePath = p.join(dir!.absolute.path, _fileName);
+      print("savePath=$savePath");
+      await _startDownload(savePath);
+    }
+    else {
+
+    }
+    /*
+    if (await Permission.storage.request().isGranted) {
+      // Permissions are granted, proceed with directory creation
+      if (dir != null) {
+        // Create a new directory in the external storage
+
+        //  final savePath = p.join(dir!.absolute.path, _fileName);
+        // print("savePath=$savePath");
+        // await _startDownload(savePath);
+        print("dirPath:${dir.path}");
+        Directory newDir = Directory('${dir.path}/rep');
+        if (!await newDir.exists()) {
+          await newDir.create(recursive: true);
+        }
+        print('Directory created: ${newDir.path}');
+        savePath = p.join(newDir.absolute.path, _fileName);
+
+        await download2(_dio, _fileUrl, savePath);
+        print("savePath::::" + savePath);
+        //  await OpenFile.open(savePath);
+        //  await _startDownload(savePath);
+      }
+    } else {
+      print('Storage permission denied');
+    }
+    */
+
+/*
     final isPermissionStatusGranted = await requestPermissions();
 
+    
     if (isPermissionStatusGranted) {
+      //(dir!.absolute.path, _fileName)
       final savePath = p.join(dir!.absolute.path, _fileName);
+      print("savePath=$savePath");
       await _startDownload(savePath);
       // print("1.pass permission");
       // print("##" + savePath + "##");
@@ -3787,11 +4400,15 @@ Future<Widget>  countRegSizeWin() async {
       // handle the scenario when user declines the permissions
       throw "not have permission";
     }
+*/
   }
 
   Widget buildButtonRegister(LoginDetail loginDetail, String type) {
     String msg = "";
     switch (type) {
+      case "changeusr":
+        msg = "กำหนดชื่อผู้ใช้งานใหม่";
+        break;
       case "resetpwd":
         msg = " กำหนดรหัสผ่านใหม่";
         break;
@@ -3804,6 +4421,10 @@ Future<Widget>  countRegSizeWin() async {
       case "login":
         msg = " เข้าสู่ระบบ";
         break;
+      case "thaid":
+        msg = " เข้าสู่ระบบด้วยแอป thaID";
+        break;
+
       case "report":
         msg = " รายงาน";
         break;
@@ -3847,6 +4468,19 @@ Future<Widget>  countRegSizeWin() async {
             // print(formKeyLogin.currentState!.validate());
             // formKeyLogin.currentState!.save();
             await loginGetToken(loginDetail);
+          } else if (type == "thaid") {
+            if (this.loginBy == "ThaID") return;
+            String code = await thaid(loginDetail);
+            if (code == "error") return;
+            // String code="";int n=0;
+            // while (code==""){
+            //   code=await resultThaID(loginDetail);
+            //   print(n++);
+            // }
+
+            // print("code*****receive=$code");
+            await thaidLogin(code, loginDetail);
+            // print("idcard***=" + this.foundIdcard);
           } else if (type == "download" || type == "slip" || type == "manual") {
             // dwnFile=true;
             await downloadFile(loginDetail, type);
@@ -3874,6 +4508,9 @@ Future<Widget>  countRegSizeWin() async {
           } else if (type == processUsrStr[2]) {
             //resetpwd
 
+            modifyUsr(loginDetail);
+          } else if (type == processUsrStr[3]) {
+            //changeusr
             modifyUsr(loginDetail);
           } else if (type == "fingerPrint") {
             if (!this.readyFingerPrint) {
@@ -3981,12 +4618,34 @@ Future<Widget>  countRegSizeWin() async {
             ),
           ),
         ),
+        Div(
+          divison: const Division(
+            colS: 12,
+            colM: 4,
+            colL: 4,
+          ),
+          child: ListTile(
+            contentPadding: EdgeInsets.all(0),
+            title: Text("ใช้แอป thaID"),
+            leading: Radio(
+              toggleable: false, //unselect ==null
+              value: 3,
+              groupValue: selectLogin,
+              onChanged: (value) {
+                selectLogin = value as int?;
+                // this.processUsr = this.processUsrStr[selectUsr! - 1];
+                setState(() {});
+              },
+              activeColor: Colors.green,
+            ),
+          ),
+        ),
       ]),
     );
   }
 
   Future<void> registerFingerPrint() async {
-    String url = "http://dbdoh.doh.go.th:9000/idcardUuidIns/" +
+    String url = "https://dbdoh.doh.go.th:9000/idcardUuidIns/" +
         idcardCtrl.text +
         "?uuid=" +
         uuid;
@@ -4030,10 +4689,403 @@ Future<Widget>  countRegSizeWin() async {
   Future<void> fingerPrint(LoginDetail loginDetail) async {
     await popupFingerPrint();
     if (_authorized == 'Authorized' && loginBy != "fingerPrint") {
-      loginGetTokenFingerPrint(loginDetail);
+      loginBy = "fingerPrint";
+      loginGetTokenFingerPrintOrThaID(loginDetail, "sp@fingerPrint");
       setState(() {});
     }
   }
+
+  Widget buildOptionPeriod(LoginDetail loginDetail, {String colorBG = ""}) {
+    //select_GE=_selectMenu == SelectMenu.mnuEditG ? 1:2;
+    return Container(
+      padding: EdgeInsets.all(5),
+      margin: EdgeInsets.only(top: 5),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+              colors: [Colors.yellow.shade100, Colors.green.shade100])),
+      // decoration: BoxDecoration(
+      //     color: Colors.green[50], borderRadius: BorderRadius.circular(16)),
+      child: Responsive(children: <Widget>[
+        Div(
+          divison: const Division(
+            colS: 12,
+            colM: 4,
+            colL: 4,
+          ),
+          child: ListTile(
+            contentPadding: EdgeInsets.all(0),
+            title: Text("งวดที่ 1"),
+            leading: Radio(
+              toggleable: false, //unselect ==null
+              value: "1",
+              groupValue: period,
+              onChanged: (value) {
+                period = value as String;
+                // this.processUsr = this.processUsrStr[selectUsr! - 1];
+                setState(() {});
+              },
+              activeColor: Colors.green,
+            ),
+          ),
+        ),
+        Div(
+          divison: const Division(
+            colS: 12,
+            colM: 4,
+            colL: 4,
+          ),
+          child: ListTile(
+            contentPadding: EdgeInsets.all(0),
+            title: Text("งวดที่ 2"),
+            leading: Radio(
+              toggleable: false,
+              value: "2",
+              groupValue: period,
+              onChanged: (value) {
+                period = value as String;
+                // this.processUsr = this.processUsrStr[selectUsr! - 1];
+                setState(() {});
+              },
+              activeColor: Colors.green,
+            ),
+          ),
+        ),
+      ]),
+    );
+  }
+
+//   String _status = "";
+//   Future<void> startServer() async {
+//     final server = await HttpServer.bind('127.0.0.1', 43823);
+
+//     server.listen((req) async {
+//       setState(() {
+//         this._status = 'Received request!';
+//       });
+
+//       req.response.headers.add('Content-Type', 'text/html');
+
+//       // Windows needs some callback URL on localhost
+//       /* req.response.write(
+//         (Platform.isWindows || Platform.isLinux)
+//             ? html.replaceFirst(
+//                 'CALLBACK_URL_HERE',
+//                 'http://localhost:43824/success?code=1337',
+//               )
+//             : html.replaceFirst(
+//                 'CALLBACK_URL_HERE',
+//                 'foobar://success?code=1337',
+//               ),
+//       );
+// */
+//       // await req.response.close();
+//     });
+//   }
+
+  FutureOr<Null> launchUrl1(String url, LaunchMode inAppWebView) {
+    launch(url).then(
+      (bool isLaunch) async {
+        print('isLaunch: $isLaunch');
+        if (isLaunch) {
+          // Launch Success
+          await launch(url,
+              forceWebView: true,
+              enableDomStorage: true,
+              enableJavaScript: true,
+              webOnlyWindowName: "_self");
+        } else {
+          // Launch Fail
+        }
+      },
+      onError: (e) {
+        print('onError: $e');
+      },
+    ).catchError(
+      // ignore: invalid_return_type_for_catch_error
+      (e) => print(e),
+    );
+  }
+
+  String redirect_uri = "valid-callback-scheme-sp:/"; //    localhost:43823";
+  Future<String> thaid(LoginDetail loginDetail) async {
+    // thaIDQR =
+    String url =
+        "https://imauth.bora.dopa.go.th/api/v2/oauth2/auth/?response_type=code&client_id=bnVzQ2J1NXUwYnV3NmpwdWRDcGlwYWdXa3B4emV4aHo&redirect_uri=${redirect_uri}&scope=pid&state=doh_sp"; // ${Uri.encodeFull(redirect_uri)}
+    //%20name%20birthdate
+    // final  uri = Uri.parse(url) ;
+    //  final uri = Uri.parse(url);
+    // print("before");
+    String code1 = "error";
+    try {
+      final result = await FlutterWebAuth.authenticate(
+          url: url, callbackUrlScheme: "valid-callback-scheme-sp");
+// print("result=$result");
+      if (Uri.parse(result).queryParameters['error'] != null) {
+        String msg = "ผู้ใช้งานไม่ยินยอมการให้ข้อมูล";
+        MsgShow().showMsg(msg, TypeMsg.Warning, context);
+        // this.signOut(context, loginDetail);
+        return "error";
+      }
+      code1 = Uri.parse(result).queryParameters['code'].toString();
+      // print("code1=$code1");
+      return code1;
+
+//
+/*
+result=valid-callback-scheme:/?code=Y2QyZjdmNTktYjQ5MC00ZGY5LWFkMDYtMDdmNzQwNzk5MmEzIzQ4OGU1YmZiLTlmMDgtNGVjNS1hYjY1LTA5ODI3ZDIzNzlhZQ&state=doh_sp
+I/flutter ( 8071): code1=Y2QyZjdmNTktYjQ5MC00ZGY5LWFkMDYtMDdmNzQwNzk5MmEzIzQ4OGU1YmZiLTlmMDgtNGVjNS1hYjY1LTA5ODI3ZDIzNzlhZQ
+
+*/
+
+// final token = Uri.parse(result);
+//     String at = token.fragment;
+//     at = "http://website/index.html?$at"; // Just for easy persing
+//     print("at=$at");
+//     var accesstoken = Uri.parse(at).queryParameters['access_token'];
+//     print('token');
+//     print("code2=$accesstoken");
+    } on PlatformException catch (e) {
+      // If auth is cancelled or any other error - the library
+      // throw the exception. We catch it and return the error
+      // in a standard way for us. So the root screen has the error answer
+      // in the same format both for inner and external browsers
+      print("error^^^" + e.toString());
+      Navigator.of(context).pop({
+        'error': e,
+      });
+    }
+
+    return code1;
+    // if (await canLaunchUrl(uri)) {
+    //   await launchUrl(uri,mode: LaunchMode.externalNonBrowserApplication);
+    // } else {
+    //   // can't launch url
+    //   print("****err");
+    // }
+
+    // showthaIDQR = true;
+    // setState(() {});
+
+    // final url = Uri.https('imauth.bora.dopa.go.th', '/api/v2/oauth2/auth', {
+    //   'client_id': 'bnVzQ2J1NXUwYnV3NmpwdWRDcGlwYWdXa3B4emV4aHo',
+    //   'redirect_uri': redirect_uri,
+    //   'response_type': 'code',
+    //   'scope': 'pid',
+    //   'state': 'doh_sp',
+    // });
+    // print(url);
+    // url="https://www.google.co.th";
+    // if (await canLaunch(url.toString())) {
+    //   await launch(url.toString());//, forceSafariVC: true, forceWebView: true);
+    // } else {
+    //   throw 'Could not launch*** $url';
+    // }
+
+    // js.context.callMethod('open', [url, '_self']); //, '_self'
+    //
+    // this.launchUrl(url);
+
+// final _appLinks = AppLinks(); // AppLinks is singleton
+
+// Subscribe to all events (initial link and further)
+    // _appLinks.uriLinkStream.listen((url) {
+    //   // Do something (navigation, ...)
+    // });
+    // print("ก่อนท้องฟ้าจะสดใส");
+    // PackageInfo.fromPlatform().then((value) {
+    //   print(
+    //       value); // Value will be our all details we get from package info package
+    // });
+    // Present the dialog to the user
+    // try {
+    // final result =
+    //  await FlutterWebAuth.authenticate(
+    //     url: url, callbackUrlScheme: "valid-callback-scheme");
+    // final String? code = Uri.parse(result).queryParameters['code'];
+    // print(code! + "////////////////////");
+    // _handleAuthResponse(result);
+    // } on PlatformException catch (e) {
+    // If auth is cancelled or any other error - the library
+    // throw the exception. We catch it and return the error
+    // in a standard way for us. So the root screen has the error answer
+    // in the same format both for inner and external browsers
+    // print("error^^^" + e.toString());
+    // Navigator.of(context).pop({
+    //   'error': e,
+    // });
+    // }
+// Extract token from resulting url
+    // final code = Uri.parse(result).queryParameters['code'];
+    // print("******************************");
+    // print(code);
+    // MsgShow().showMsg("code:" + code.toString(), TypeMsg.Information, context);
+// loginDetail.cntregis=code.toString();
+// setState(() {
+
+// });
+    // url="https://www.google.co.th?code="+code.toString();
+    // if (await canLaunch(url)) {
+    //   await launch(url, forceSafariVC: true, forceWebView: true);
+    // } else {
+    //   throw 'Could not launch*** $url';
+    // }
+
+    /*
+   print(Uri.base.toString()); // http://localhost:8082/game.html?id=15&randomNumber=3.14
+  print(Uri.base.query);  // id=15&randomNumber=3.14
+  print(Uri.base.queryParameters['randomNumber']); // 3.14
+  */
+  }
+
+  /*
+  Future<String> resultThaID(LoginDetail loginDetail) async {
+     String url = "https://dbdoh.doh.go.th:9000/codeThD";
+     http.Response response = await http.post(
+      Uri.parse(url),
+      headers: <String, String>{
+        'Content-Type': 'application/json;charset=UTF-8',
+        'Accept': 'application/json; charset=UTF-8'
+      },
+      // body: jsonEncode(
+      //     <String, String>{"username": username, "password": password}),
+    );
+
+  
+    Map map;
+String code="";
+    if (response.statusCode == 200) {
+      map = json.decode(response.body);
+      code = (map["code"]);
+    }
+    if (code=="error") {
+      String msg = "ผู้ใช้งานไม่ยินยอมการให้ข้อมูล";
+      MsgShow().showMsg(msg, TypeMsg.Warning, context);
+      return code;
+    }
+// print("***code="+code);
+return code;
+// await thaidLogin(code,loginDetail);
+// print("idcard***="+this.foundIdcard);
+  }
+*/
+  thaidLogin(String code, LoginDetail loginDetail) async {
+    String url =
+        "https://dbdoh.doh.go.th:9000/getIdthaID?code=${code}&redirect_uri=${redirect_uri}";
+    // String url = 'https://corsproxy.io/?' +
+    //     Uri.encodeComponent(
+    //         "https://imauth.bora.dopa.go.th/api/v2/oauth2/token/");
+    // String url = 'http://proxy:root3533@backupdoh.doh.go.th:9000/?' +
+    //     Uri.encodeComponent(
+    //         "https://imauth.bora.dopa.go.th/api/v2/oauth2/token/");
+
+    http.Response response = await http.post(
+      Uri.parse(url),
+      headers: <String, String>{
+        // 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+        // 'Accept': '*/*; charset=UTF-8',
+        // 'Authorization':
+        //     'Basic Ym5WelEySjFOWFV3WW5WM05tcHdkV1JEY0dsd1lXZFhhM0I0ZW1WNGFIbzpkbGQ2YmtsMWVuTTBPVXN3YW10UGNuTTRWelJTWVhoQmJXOVJhVE00U0hGa2MyRnlUMG80Tnc=',
+        // 'Access-Control-Allow-Origin': '*',
+        // 'Access-Control-Allow-Headers':
+        //     'Origin, X-Requested-With, Content-Type, Accept',
+        // 'Access-Control-Allow-Credentials': 'true',
+        // 'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,PATCH',
+      },
+      // body: ({
+      //   "grant_type": "authorization_code",
+      //   "code": code,
+      //   "redirect_uri": redirect_uri
+      // }),
+    );
+    Map map = json.decode(response.body);
+    // print(map);
+    // String msgLast = "";
+    if (response.statusCode == 200) {
+      // print(map["pid"]);
+      bool valid = await isValidIdcard(map["pid"]);
+      // print("valid="+valid.toString());
+      // print(map["name"]);
+      // print(map["birthdate"]);
+      if (!valid) {
+        MsgShow().showMsg("ระบบงานนี้ใช้เฉพาะข้าราชการ-ลูกจ้างประจำกรมทางหลวง",
+            TypeMsg.Warning, context);
+        return;
+      } else {
+        foundIdcard = map["pid"];
+        await loginGetTokenFingerPrintOrThaID(loginDetail, "sp@thaid");
+        this.loginBy = "ThaID";
+      }
+
+      // print(foundIdcard);
+
+      // loginDetail.idcard = (map["idcard"]);
+      // loginDetail.id = (map["id"]);
+      // msgLast = await getLastLogin(loginDetail.idcard);
+      // loginDetail.msgLast = msgLast;
+      // insertLastLogin(loginDetail.idcard);
+    } //state 200
+  }
+
+  // Widget showReport(LoginDetail loginDetail) {
+  //   return SfPdfViewer.network(
+  //             this._fileUrl);
+  // }
+/*
+Future<bool> isValidIdcard(String idcard) async {
+    bool valid = false;
+    String url = "https://dbdoh.doh.go.th:9000/isValidIdcard/" + idcard;
+    http.Response response = await http.post(
+      Uri.parse(url),
+      headers: <String, String>{
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json;charset=UTF-8',
+        'Accept': 'application/json; charset=UTF-8'
+      },
+      // body: jsonEncode(
+      //     <String, String>{"username": userName, "password": password}),
+    );
+
+    // print(response.statusCode);
+    if (response.statusCode == 200) {
+      var ret = jsonDecode(response.body);
+      valid = ret["found"];
+    }
+    return valid;
+  }
+*/
+
+/*
+  _handleAuthResponse(String response) {
+    print("in handle");
+    print(response);
+    if (response.contains('?code=')) {
+      // parsing the auth code from the response
+      // the response structure can be different for different providers
+      // so this parsing logic should be adjusted for your provider
+      final code = response.split('=')[1];
+      print("code=" + code);
+      // l('build', 'code', code);
+      Navigator.of(context).pop({
+        'code': code,
+      });
+      return NavigationDecision.prevent;
+    }
+
+    if (response.contains('?error=')) {
+      // the error response is also specific for the Github oauth way
+      // below is the redirect url structure for the github
+      // tark://callback?error=access_denied&error_description=The+user+has+denied+your+application+access.&error_uri=https%3A%2F%2Fdocs.github.com%2Fapps%2Fmanaging-oauth-apps%2Ftroubleshooting-authorization-request-errors%2F%23access-denied
+      // your provider can have another url structure, so this  parsing logic should be
+      // adjusted
+      final error = response.split('=')[1].split('&')[0];
+      // l('build', 'error', error);
+      Navigator.of(context).pop({
+        'error': error,
+      });
+    }
+  }
+ */
 }
 
 class Menu extends StatefulWidget {

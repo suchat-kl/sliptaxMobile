@@ -1,0 +1,44 @@
+
+PS C:\flutterPrj\sp_mobile> flutter create .
+Recreating project ....
+  .idea\libraries\Dart_SDK.xml (created)
+  .idea\libraries\KotlinJavaRuntime.xml (created)
+  .idea\modules.xml (created)
+  .idea\runConfigurations\main_dart.xml (created)
+  .idea\workspace.xml (created)
+  android\app\build.gradle (created)
+  android\app\src\main\kotlin\com\example\sp_mobile\MainActivity.kt (created)
+  android\build.gradle (created)
+  android\sp_mobile_android.iml (created)
+  android\.gitignore (created)
+  android\app\src\debug\AndroidManifest.xml (created)
+  android\app\src\main\AndroidManifest.xml (created)
+  android\app\src\main\res\drawable\launch_background.xml (created)
+  android\app\src\main\res\drawable-v21\launch_background.xml (created)
+  android\app\src\main\res\mipmap-hdpi\ic_launcher.png (created)
+  android\app\src\main\res\mipmap-mdpi\ic_launcher.png (created)
+  android\app\src\main\res\mipmap-xhdpi\ic_launcher.png (created)
+  android\app\src\main\res\mipmap-xxhdpi\ic_launcher.png (created)
+  android\app\src\main\res\mipmap-xxxhdpi\ic_launcher.png (created)
+  android\app\src\main\res\values\styles.xml (created)
+  android\app\src\main\res\values-night\styles.xml (created)
+  android\app\src\profile\AndroidManifest.xml (created)
+  android\gradle\wrapper\gradle-wrapper.properties (created)
+  android\gradle.properties (created)
+  android\settings.gradle (created)
+Resolving dependencies... (1.0s)
+Downloading packages...
+Got dependencies.
+Wrote 28 files.
+
+All done!
+You can find general documentation for Flutter at: https://docs.flutter.dev/
+Detailed API documentation is available at: https://api.flutter.dev/
+If you prefer video documentation, consider: https://www.youtube.com/c/flutterdev
+
+In order to run your application, type:
+
+  $ cd .
+  $ flutter run
+
+Your application code is in .\lib\main.dart.

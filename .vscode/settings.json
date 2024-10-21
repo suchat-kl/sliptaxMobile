@@ -1,0 +1,5 @@
+{
+    "cmake.sourceDirectory": "C:/flutterPrj/sp_mobile/linux",
+    "java.configuration.updateBuildConfiguration": "disabled",
+    "java.compile.nullAnalysis.mode": "disabled"
+}
